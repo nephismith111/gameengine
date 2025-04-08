@@ -146,6 +146,25 @@
     {% render_bundle 'YourBundleName' %}
     ```
 
+## Docker Development
+- All Django commands should be run inside the Docker container
+- To run migrations:
+  ```bash
+  docker-compose exec web python project/gameengine/manage.py migrate
+  ```
+- To create migrations:
+  ```bash
+  docker-compose exec web python project/gameengine/manage.py makemigrations
+  ```
+- To create a superuser:
+  ```bash
+  docker-compose exec web python project/gameengine/manage.py createsuperuser
+  ```
+- To run the Django shell:
+  ```bash
+  docker-compose exec web python project/gameengine/manage.py shell
+  ```
+
 ## Game Flow and Architecture
 
 ### Welcome Page

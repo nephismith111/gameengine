@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Waiting Room{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Waiting Room</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2 id="game-name">Loading game...</h2>
+        </div>
+        <div class="card-body">
+            <h3>Game Type: <span id="game-type">Loading...</span></h3>
+            <p id="game-description">Loading game description...</p>
+            
+            <h4 class="mt-4">Players</h4>
+            <ul class="list-group mb-4" id="players-list">
+                <li class="list-group-item">Loading players...</li>
+            </ul>
+            
+            <div id="creator-controls" style="display: none;">
+                <button id="start-game-btn" class="btn btn-primary">Start Game</button>
+            </div>
+        </div>
+    </div>
+    
+    <a href="/" class="btn btn-secondary">Back to Games</a>
+</div>
+
+<input type="hidden" id="game-id" value="{{ game_id }}">
+
+{% endblock %}
+
+{% block scripts %}
+{% render_bundle 'waitingroom' %}
+{% endblock %}

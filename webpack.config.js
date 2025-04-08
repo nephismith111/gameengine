@@ -10,6 +10,7 @@ module.exports = {
     // Example:
     // GameApp: './project/gameengine/game/webpack/game_root.js',
     gameengine: './project/gameengine/gameengine/webpack/gameengine_root.js',
+    waitingroom: './project/gameengine/waitingroom/webpack/waitingroom_root.js',
   },
   output: {
     path: path.resolve('./project/gameengine/static/webpack_bundles/'),

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     # Project apps
     'gameengine',
     'userauth',
+    'waitingroom',
 ]
 
 MIDDLEWARE = [

@@ -31,6 +31,15 @@ This document tracks the features of the Game Engine application to help with de
 - Waiting room with player list and game controls
 - Game creator controls
 
+## JavaScript Module Organization
+
+- `gameengine_root.js` - Main entry point and initialization
+- `api_urls.js` - API URL definitions
+- `websocket_client.js` - WebSocket client implementation
+- `game_types.js` - Game type loading and rendering
+- `game_instances.js` - Game instance loading and rendering
+- `utils.js` - Utility functions
+
 ## Testing Status
 
 | Feature | Test Coverage | Notes |

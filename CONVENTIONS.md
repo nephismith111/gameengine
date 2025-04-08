@@ -119,6 +119,9 @@
   - DOM interaction and event handling in JS files
   - API interactions via jQuery AJAX
 - **Entry Point**: Each page must define its entrypoint JS file for Webpack
+  - Root files should be small and focused on initialization
+  - Split functionality into separate modules for better maintainability
+  - Root files should primarily handle document ready functions and module initialization
 - **Resource Management**: 
   - Call API endpoints for data rather than preloading in HTML
   - Use CDN-hosted libraries whenever feasible
@@ -134,6 +137,10 @@
 - **Javascript Nuances**:
   - Prefer using callbacks and `.bind(this)` instead of Promises for better control of `this`
   - Deconstruct needed variables at the top of each function to clarify data sources and reduce verbosity
+- **Module Organization**:
+  - Split large JavaScript files into focused modules with clear responsibilities
+  - Use ES6 import/export syntax for module dependencies
+  - Keep modules under 300 lines of code when possible
 
 ## Webpack Configuration
 - JavaScript must go inside Webpack folders for each Django app

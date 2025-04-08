@@ -113,6 +113,14 @@ function handleSettingsUpdate(data) {
     if (currentUserId !== data.updated_by.id) {
         showInfo(`Game settings updated by ${updatedBy}`);
     }
+    
+    // TODO: Fix notification not showing up on remote browsers
+    // The update is coming through on remote browsers but the notification isn't displaying
+    // Possible issues:
+    // 1. Bootstrap Toast initialization failing
+    // 2. CSS/styling issues preventing visibility
+    // 3. Timing issues with DOM elements
+    // 4. User ID comparison logic incorrect
 }
 
 /**

@@ -29,6 +29,13 @@ This document tracks the features of the Game Engine application to help with de
 - Elements update messages (for game element updates) - Used for real-time updates of game elements
 - Game state messages (for game status and resource updates) - Used for real-time game state changes
 - Settings update messages (for game settings changes in waiting room) - Note: Consider moving to AJAX responses
+- Waiting room update messages - Used for comprehensive waiting room state updates including player lists
+
+## Known Issues
+
+- TODO: Fix notification not showing up on remote browsers in waiting room
+  - The WebSocket update is received but notifications don't appear
+  - Settings are correctly updated in the UI
 
 ## User Interface
 

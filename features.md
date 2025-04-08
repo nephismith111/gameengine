@@ -12,13 +12,6 @@ This document tracks the features of the Game Engine application to help with de
 - Game starting mechanism
 - WebSocket communication for real-time updates
 
-## Game Types
-
-- Tower Defense
-  - Description: Defend your base by strategically placing towers to stop enemies
-  - Status: Implemented
-  - Tests: Basic tests implemented
-
 ## API Endpoints
 
 - `/gameengine/v1/game-types/` - List all game types
@@ -31,8 +24,6 @@ This document tracks the features of the Game Engine application to help with de
 ## WebSocket Functionality
 
 - Validation messages
-- Game state updates
-- Player join/leave notifications
 
 ## User Interface
 
@@ -45,16 +36,8 @@ This document tracks the features of the Game Engine application to help with de
 | Feature | Test Coverage | Notes |
 |---------|--------------|-------|
 | User Authentication | Partial | Basic login/logout tested |
-| Game Type Listing | Complete | |
-| Game Instance Creation | Complete | |
-| Game Instance Joining | Partial | Edge cases needed |
+| Game Type Listing | Minimal | |
+| Game Instance Creation | Minimal | |
+| Game Instance Joining | Minimal | |
 | Waiting Room | Minimal | |
 | WebSocket Communication | Minimal | Only validation tested |
-
-## Planned Features
-
-- Game history and statistics
-- User profiles and preferences
-- Additional game types
-- Chat functionality in waiting rooms
-- Spectator mode for ongoing games

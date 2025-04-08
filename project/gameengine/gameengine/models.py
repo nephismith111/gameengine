@@ -40,9 +40,9 @@ class GameInstance(models.Model):
     class Meta:
         ordering = [
             models.Case(
-                models.When(status=Status.PENDING, then=0),
-                models.When(status=Status.ONGOING, then=1),
-                models.When(status=Status.ENDED, then=2),
+                models.When(status='pending', then=0),
+                models.When(status='ongoing', then=1),
+                models.When(status='ended', then=2),
                 default=3,
                 output_field=models.IntegerField(),
             ),

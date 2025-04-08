@@ -106,7 +106,7 @@
 - **URL Routing**: Prefer Django `re_path` over `path`
 - **Configuration**: Import variables from `credentials.py` rather than requesting them from the browser
 - **Code Organization**: Keep the django views tiny: unpack variables, call a function to do logic `<app>/src/<logic>.py`, then repack the results and send it off. Functions should be TINY.
-- **Python Types**: Use typing to clarify intent, especially on public interfaces, without full static enforcement
+- **Python Types**: Use typing to clarify intent when needed, especially on public interfaces and function signatures.
 
 ## Python Testing
 - Use django unittest with pyvcr. Record interactions in `<app>/tests/fixtures/vcr_cassetts/<file>.yaml`

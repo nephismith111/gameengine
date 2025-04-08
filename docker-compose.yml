@@ -56,17 +56,17 @@ services:
     networks:
       - gameengine_network
 
-  webpack:
-    build: .
-    command: npm run dev
-    volumes:
-      - .:/app
-    ports:
-      - "8080:8080"
-    depends_on:
-      - server
-    networks:
-      - gameengine_network
+#  webpack:
+#    build: .
+#    command: npm run dev
+#    volumes:
+#      - .:/app
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - server
+#    networks:
+#      - gameengine_network
 
 volumes:
   postgres_data:

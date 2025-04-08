@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from gameengine.models import GameInstance
+# from project.gameengine.gameengine.models import GameInstance
 
 
 def waiting_room_view(request, game_id):

@@ -26,9 +26,9 @@ This document tracks the features of the Game Engine application to help with de
 ## WebSocket Functionality
 
 - Validation messages
-- Elements update messages (for game element updates)
-- Game state messages (for game status and resource updates)
-- Settings update messages (for game settings changes in waiting room)
+- Elements update messages (for game element updates) - Used for real-time updates of game elements
+- Game state messages (for game status and resource updates) - Used for real-time game state changes
+- Settings update messages (for game settings changes in waiting room) - Note: Consider moving to AJAX responses
 
 ## User Interface
 

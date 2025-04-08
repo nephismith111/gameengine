@@ -14,6 +14,7 @@ def load_initial_game_types(apps, schema_editor):
         name='TowerDefense',
         defaults={
             'description': 'A strategic defense game where players place various types of towers to defend against waves of enemies.',
+            'image_url': '/static/gameengine/images/tower_defense.svg',
             'max_players': 4,
             'default_settings': {
                 'frames_per_second': 1,
@@ -32,6 +33,7 @@ def load_initial_game_types(apps, schema_editor):
         name='StarDefenders',
         defaults={
             'description': 'A space-themed shooter where players pilot starships and defend against incoming enemy waves.',
+            'image_url': '/static/gameengine/images/star_defenders.svg',
             'max_players': 4,
             'default_settings': {
                 'frames_per_second': 1,
@@ -47,6 +49,7 @@ def load_initial_game_types(apps, schema_editor):
         name='Bong',
         defaults={
             'description': 'A unique take on the classic pong concept.',
+            'image_url': '/static/gameengine/images/bong.svg',
             'max_players': 2,
             'default_settings': {
                 'frames_per_second': 1,

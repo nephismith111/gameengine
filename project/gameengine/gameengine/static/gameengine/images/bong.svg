@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Game border -->
+  <rect x="20" y="20" width="160" height="160" fill="none" stroke="#333" stroke-width="4"/>
+  
+  <!-- Ball -->
+  <circle cx="100" cy="100" r="10" fill="#FF6347"/>
+  
+  <!-- Player paddle -->
+  <rect x="70" y="140" width="60" height="15" rx="5" fill="#4682B4"/>
+  
+  <!-- BONG! text effect -->
+  <text x="90" y="80" font-family="Arial" font-size="16" fill="#FFD700" opacity="0.7">BONG!</text>
+  
+  <!-- Visual effect around ball -->
+  <circle cx="100" cy="100" r="20" fill="none" stroke="#FFD700" stroke-width="2" opacity="0.5"/>
+  <circle cx="100" cy="100" r="30" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.3"/>
+</svg>

@@ -346,7 +346,10 @@ function showNotification(message, type = 'info') {
     
     // Auto-dismiss after 5 seconds
     setTimeout(function() {
-        notification.alert('close');
+        // Use Bootstrap's API to close the alert
+        const alertElement = notification[0];
+        const bsAlert = new bootstrap.Alert(alertElement);
+        bsAlert.close();
     }, 5000);
 }
 

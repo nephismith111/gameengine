@@ -48,10 +48,42 @@ components:
             type: string
             description: A validation message
             example: "WebSocket connection validated"
+          user_id:
+            type: integer
+            description: ID of the user receiving the validation message
           timestamp:
             type: string
             format: date-time
             description: The time when the message was sent
+
+# Django Channels Configuration
+# ----------------------------
+# This section documents the Django Channels group naming conventions and organization.
+# Note: This is not part of the AsyncAPI specification but serves as documentation for developers.
+#
+# Channel Groups:
+# 1. User-specific groups:
+#    - Format: user_{user_id}
+#    - Purpose: Send messages to specific users
+#    - Usage: Used for validation messages and user-specific game updates
+#    - Function: get_user_group_name(user_id)
+#
+# 2. Game-specific groups:
+#    - Format: game_{game_id}
+#    - Purpose: Send messages to all users in a specific game
+#    - Usage: Used for game state updates and element updates
+#    - Function: get_game_group_name(game_id)
+#
+# 3. Waiting room groups:
+#    - Format: waiting_room_{game_id}
+#    - Purpose: Send messages to all users in a waiting room
+#    - Usage: Used for player join/leave notifications and game start events
+#    - Function: get_waiting_room_group_name(game_id)
+#
+# Channel Group Management:
+# - All group name generation should be centralized in the channel_groups.py file
+# - Never hardcode channel group names in WebSocket consumers or messaging functions
+# - Use the functions from channel_groups.py to generate consistent group names
     
     ElementsUpdateMessage:
       name: elementsUpdateMessage

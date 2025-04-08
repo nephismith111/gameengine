@@ -286,8 +286,15 @@ function capitalizeFirstLetter(string) {
  * Show the modal for creating a new game
  */
 function showNewGameModal(gameTypeId) {
+    // Store the selected game type ID
     $('#gameTypeId').val(gameTypeId);
     $('#instanceName').val('');
+    
+    // Get the game type name for better UX
+    const gameTypeName = $('.game-type-card[data-game-type-id="' + gameTypeId + '"] .card-title').text();
+    $('#selectedGameType').text(gameTypeName);
+    
+    // Show the modal
     $('#newGameModal').modal('show');
 }
 

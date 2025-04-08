@@ -1,0 +1,136 @@
+asyncapi: 2.6.0
+info:
+  title: Game Engine WebSocket API
+  description: WebSocket API documentation for the Game Engine project
+  version: 1.0.0
+
+servers:
+  development:
+    url: ws://localhost:8000/ws/
+    protocol: ws
+    description: Local development server
+
+channels:
+  /validate/:
+    subscribe:
+      summary: Receive validation messages
+      message:
+        $ref: '#/components/messages/ValidationMessage'
+  
+  /game/{gameId}/:
+    parameters:
+      gameId:
+        description: The unique identifier of the game instance
+        schema:
+          type: string
+          format: uuid
+    subscribe:
+      summary: Receive game updates
+      message:
+        oneOf:
+          - $ref: '#/components/messages/ElementsUpdateMessage'
+          - $ref: '#/components/messages/GameStateMessage'
+
+components:
+  messages:
+    ValidationMessage:
+      name: validationMessage
+      title: Validation Message
+      summary: A simple message to validate WebSocket connection
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          message_type:
+            type: string
+            enum: [validation]
+          message:
+            type: string
+            description: A validation message
+            example: "WebSocket connection validated"
+          timestamp:
+            type: string
+            format: date-time
+            description: The time when the message was sent
+    
+    ElementsUpdateMessage:
+      name: elementsUpdateMessage
+      title: Elements Update Message
+      summary: Updates for game elements (e.g., towers, enemies, etc.)
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          message_type:
+            type: string
+            enum: [elems_update]
+          list_items:
+            type: array
+            description: List of updated game elements
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: Unique identifier for the element
+                type:
+                  type: string
+                  description: Type of the element (e.g., tower, enemy)
+                position:
+                  type: object
+                  properties:
+                    x:
+                      type: number
+                    y:
+                      type: number
+                state:
+                  type: string
+                  description: Current state of the element
+                properties:
+                  type: object
+                  description: Additional properties specific to the element type
+          timestamp:
+            type: string
+            format: date-time
+            description: The time when the message was sent
+    
+    GameStateMessage:
+      name: gameStateMessage
+      title: Game State Message
+      summary: Updates for the overall game state
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          message_type:
+            type: string
+            enum: [game_state]
+          game_state:
+            type: object
+            properties:
+              status:
+                type: string
+                enum: [active, paused, won, lost]
+                description: Current status of the game
+              resources:
+                type: object
+                properties:
+                  lives:
+                    type: integer
+                    description: Remaining lives
+                  money:
+                    type: integer
+                    description: Available money/currency
+                  score:
+                    type: integer
+                    description: Current score
+              wave:
+                type: integer
+                description: Current wave number
+              time_remaining:
+                type: integer
+                description: Time remaining in seconds (if applicable)
+          timestamp:
+            type: string
+            format: date-time
+            description: The time when the message was sent

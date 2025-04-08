@@ -24,6 +24,8 @@ This document tracks the features of the Game Engine application to help with de
 ## WebSocket Functionality
 
 - Validation messages
+- Elements update messages (for game element updates)
+- Game state messages (for game status and resource updates)
 
 ## User Interface
 

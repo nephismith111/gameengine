@@ -8,8 +8,16 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 import json
 
-# Import the WebSocket messaging functionality
+# Import all required functionality from src modules
 from project.gameengine.gameengine.src.websocket_messaging import send_validation_message
+from project.gameengine.gameengine.src.games import (
+    get_all_game_types,
+    get_all_game_instances,
+    get_game_instance,
+    create_game_instance,
+    join_game_instance,
+    start_game_instance
+)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class TriggerWebSocketView(LoginRequiredMixin, View):
@@ -44,8 +52,6 @@ class GameTypesView(LoginRequiredMixin, View):
     API endpoint to get all game types.
     """
     def get(self, request, *args, **kwargs):
-        from project.gameengine.gameengine.src.games import get_all_game_types
-        
         game_types = get_all_game_types()
         return JsonResponse({'game_types': game_types})
     
@@ -62,14 +68,10 @@ class GameInstancesView(LoginRequiredMixin, View):
     API endpoint to get all game instances or create a new one.
     """
     def get(self, request, *args, **kwargs):
-        from project.gameengine.gameengine.src.games import get_all_game_instances
-        
         game_instances = get_all_game_instances()
         return JsonResponse({'game_instances': game_instances})
     
     def post(self, request, *args, **kwargs):
-        from project.gameengine.gameengine.src.games import create_game_instance
-        
         try:
             data = json.loads(request.body)
             game_type_id = data.get('game_type_id')
@@ -107,8 +109,6 @@ class GameInstanceDetailView(LoginRequiredMixin, View):
     API endpoint to get details of a specific game instance.
     """
     def get(self, request, game_id, *args, **kwargs):
-        from project.gameengine.gameengine.src.games import get_game_instance
-        
         try:
             game_instance = get_game_instance(game_id)
             return JsonResponse(game_instance)
@@ -131,8 +131,6 @@ class JoinGameView(LoginRequiredMixin, View):
     API endpoint to join a game instance.
     """
     def post(self, request, game_id, *args, **kwargs):
-        from project.gameengine.gameengine.src.games import join_game_instance
-        
         try:
             game_instance = join_game_instance(game_id, request.user)
             return JsonResponse(game_instance)
@@ -155,8 +153,6 @@ class StartGameView(LoginRequiredMixin, View):
     API endpoint to start a game instance.
     """
     def post(self, request, game_id, *args, **kwargs):
-        from project.gameengine.gameengine.src.games import start_game_instance
-        
         try:
             game_instance = start_game_instance(game_id, request.user)
             return JsonResponse(game_instance)

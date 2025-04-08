@@ -22,6 +22,18 @@ $(document).ready(function() {
         return;
     }
     
+    // Create notification area if it doesn't exist
+    if ($('#notification-area').length === 0) {
+        // Try to add it after players card
+        if ($('#players-card').length > 0) {
+            $('#players-card').after('<div id="notification-area" class="mt-3"></div>');
+        } 
+        // If players card doesn't exist yet, add it to the main container
+        else {
+            $('.container').append('<div id="notification-area" class="mt-3"></div>');
+        }
+    }
+    
     // Load game data
     loadGameData(gameId);
     
@@ -51,6 +63,11 @@ $(document).ready(function() {
     setInterval(function() {
         loadGameData(gameId);
     }, 10000); // Refresh every 10 seconds
+    
+    // Show a test notification to verify the notification area works
+    setTimeout(function() {
+        showInfo('Waiting room initialized');
+    }, 1000);
 });
 
 /**
@@ -163,6 +180,10 @@ function updatePlayersList(players) {
     });
     
     $('#players-list').html(html);
+    
+    // Ensure notification area exists after updating players list
+    // This is a good place to ensure it exists since we know the players card exists at this point
+    ensureNotificationArea();
 }
 
 /**
@@ -330,6 +351,11 @@ function showInfo(message) {
  * Show a notification in the dedicated notification area
  */
 function showNotification(message, type = 'info') {
+    console.log('Showing notification:', message, type);
+    
+    // Ensure notification area exists
+    ensureNotificationArea();
+    
     // Create notification element
     const notification = $(`
         <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -338,18 +364,31 @@ function showNotification(message, type = 'info') {
         </div>
     `);
     
-    // Ensure notification area exists
-    ensureNotificationArea();
-    
     // Add to notification area
     $('#notification-area').append(notification);
+    console.log('Added notification to area');
     
     // Auto-dismiss after 5 seconds
     setTimeout(function() {
-        // Use Bootstrap's API to close the alert
-        const alertElement = notification[0];
-        const bsAlert = new bootstrap.Alert(alertElement);
-        bsAlert.close();
+        try {
+            // Use Bootstrap's API to close the alert if Bootstrap is available
+            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                const alertElement = notification[0];
+                const bsAlert = new bootstrap.Alert(alertElement);
+                bsAlert.close();
+            } else {
+                // Fallback to jQuery remove if Bootstrap is not available
+                notification.fadeOut(400, function() {
+                    $(this).remove();
+                });
+            }
+        } catch (e) {
+            console.error('Error dismissing alert:', e);
+            // Fallback to jQuery remove
+            notification.fadeOut(400, function() {
+                $(this).remove();
+            });
+        }
     }, 5000);
 }
 
@@ -360,8 +399,13 @@ function ensureNotificationArea() {
     if ($('#notification-area').length === 0) {
         // If notification area doesn't exist, create it after the players card
         $('#players-card').after('<div id="notification-area" class="mt-3"></div>');
+        console.log('Created notification area');
     }
     
     // Make sure it's visible
     $('#notification-area').show();
+    
+    // Debug - log all elements with id players-card
+    console.log('Players card elements:', $('#players-card').length);
+    console.log('Notification area elements:', $('#notification-area').length);
 }

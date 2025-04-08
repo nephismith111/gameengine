@@ -44,7 +44,7 @@ class GameTypesView(LoginRequiredMixin, View):
     API endpoint to get all game types.
     """
     def get(self, request, *args, **kwargs):
-        from gameengine.src.games import get_all_game_types
+        from project.gameengine.gameengine.src.games import get_all_game_types
         
         game_types = get_all_game_types()
         return JsonResponse({'game_types': game_types})
@@ -62,13 +62,13 @@ class GameInstancesView(LoginRequiredMixin, View):
     API endpoint to get all game instances or create a new one.
     """
     def get(self, request, *args, **kwargs):
-        from gameengine.src.games import get_all_game_instances
+        from project.gameengine.gameengine.src.games import get_all_game_instances
         
         game_instances = get_all_game_instances()
         return JsonResponse({'game_instances': game_instances})
     
     def post(self, request, *args, **kwargs):
-        from gameengine.src.games import create_game_instance
+        from project.gameengine.gameengine.src.games import create_game_instance
         
         try:
             data = json.loads(request.body)
@@ -107,7 +107,7 @@ class GameInstanceDetailView(LoginRequiredMixin, View):
     API endpoint to get details of a specific game instance.
     """
     def get(self, request, game_id, *args, **kwargs):
-        from gameengine.src.games import get_game_instance
+        from project.gameengine.gameengine.src.games import get_game_instance
         
         try:
             game_instance = get_game_instance(game_id)
@@ -131,7 +131,7 @@ class JoinGameView(LoginRequiredMixin, View):
     API endpoint to join a game instance.
     """
     def post(self, request, game_id, *args, **kwargs):
-        from gameengine.src.games import join_game_instance
+        from project.gameengine.gameengine.src.games import join_game_instance
         
         try:
             game_instance = join_game_instance(game_id, request.user)
@@ -155,7 +155,7 @@ class StartGameView(LoginRequiredMixin, View):
     API endpoint to start a game instance.
     """
     def post(self, request, game_id, *args, **kwargs):
-        from gameengine.src.games import start_game_instance
+        from project.gameengine.gameengine.src.games import start_game_instance
         
         try:
             game_instance = start_game_instance(game_id, request.user)

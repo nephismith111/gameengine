@@ -1,8 +1,12 @@
 """
 API views for the gameengine app.
 """
-from django.http import JsonResponse
+from typing import Dict, Any, Optional, List, Union
+from uuid import UUID
+
+from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -16,7 +20,8 @@ from project.gameengine.gameengine.src.games import (
     get_game_instance,
     create_game_instance,
     join_game_instance,
-    start_game_instance
+    start_game_instance,
+    update_game_settings
 )
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -24,7 +29,7 @@ class TriggerWebSocketView(LoginRequiredMixin, View):
     """
     API endpoint to trigger a WebSocket message.
     """
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         """
         Handle POST requests to trigger a WebSocket message.
         """
@@ -36,7 +41,7 @@ class TriggerWebSocketView(LoginRequiredMixin, View):
             'message': 'WebSocket message triggered'
         })
     
-    def http_method_not_allowed(self, request, *args, **kwargs):
+    def http_method_not_allowed(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         """
         Handle methods other than POST.
         """
@@ -51,11 +56,11 @@ class GameTypesView(LoginRequiredMixin, View):
     """
     API endpoint to get all game types.
     """
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         game_types = get_all_game_types()
         return JsonResponse({'game_types': game_types})
     
-    def http_method_not_allowed(self, request, *args, **kwargs):
+    def http_method_not_allowed(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         return JsonResponse({
             'status': 'error',
             'message': 'Method not allowed'
@@ -67,7 +72,7 @@ class UpdateGameSettingsView(LoginRequiredMixin, View):
     """
     API endpoint to update game settings.
     """
-    def post(self, request, game_id, *args, **kwargs):
+    def post(self, request: HttpRequest, game_id: UUID, *args: Any, **kwargs: Any) -> JsonResponse:
         try:
             # Parse the request body
             data = json.loads(request.body)
@@ -80,7 +85,6 @@ class UpdateGameSettingsView(LoginRequiredMixin, View):
                 }, status=400)
             
             # Update the game settings
-            from project.gameengine.gameengine.src.games import update_game_settings
             updated_instance = update_game_settings(game_id, request.user, game_settings)
             
             return JsonResponse({
@@ -99,7 +103,7 @@ class UpdateGameSettingsView(LoginRequiredMixin, View):
                 'message': str(e)
             }, status=400)
     
-    def http_method_not_allowed(self, request, *args, **kwargs):
+    def http_method_not_allowed(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         return JsonResponse({
             'status': 'error',
             'message': 'Method not allowed'
@@ -111,11 +115,11 @@ class GameInstancesView(LoginRequiredMixin, View):
     """
     API endpoint to get all game instances or create a new one.
     """
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         game_instances = get_all_game_instances()
         return JsonResponse({'game_instances': game_instances})
     
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         try:
             data = json.loads(request.body)
             game_type_id = data.get('game_type_id')
@@ -140,7 +144,7 @@ class GameInstancesView(LoginRequiredMixin, View):
                 'message': str(e)
             }, status=400)
     
-    def http_method_not_allowed(self, request, *args, **kwargs):
+    def http_method_not_allowed(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         return JsonResponse({
             'status': 'error',
             'message': 'Method not allowed'
@@ -152,7 +156,7 @@ class GameInstanceDetailView(LoginRequiredMixin, View):
     """
     API endpoint to get details of a specific game instance.
     """
-    def get(self, request, game_id, *args, **kwargs):
+    def get(self, request: HttpRequest, game_id: UUID, *args: Any, **kwargs: Any) -> JsonResponse:
         try:
             game_instance = get_game_instance(game_id)
             return JsonResponse(game_instance)
@@ -162,7 +166,7 @@ class GameInstanceDetailView(LoginRequiredMixin, View):
                 'message': str(e)
             }, status=404)
     
-    def http_method_not_allowed(self, request, *args, **kwargs):
+    def http_method_not_allowed(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         return JsonResponse({
             'status': 'error',
             'message': 'Method not allowed'
@@ -174,7 +178,7 @@ class JoinGameView(LoginRequiredMixin, View):
     """
     API endpoint to join a game instance.
     """
-    def post(self, request, game_id, *args, **kwargs):
+    def post(self, request: HttpRequest, game_id: UUID, *args: Any, **kwargs: Any) -> JsonResponse:
         try:
             game_instance = join_game_instance(game_id, request.user)
             return JsonResponse(game_instance)
@@ -184,7 +188,7 @@ class JoinGameView(LoginRequiredMixin, View):
                 'message': str(e)
             }, status=400)
     
-    def http_method_not_allowed(self, request, *args, **kwargs):
+    def http_method_not_allowed(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         return JsonResponse({
             'status': 'error',
             'message': 'Method not allowed'
@@ -196,7 +200,7 @@ class StartGameView(LoginRequiredMixin, View):
     """
     API endpoint to start a game instance.
     """
-    def post(self, request, game_id, *args, **kwargs):
+    def post(self, request: HttpRequest, game_id: UUID, *args: Any, **kwargs: Any) -> JsonResponse:
         try:
             game_instance = start_game_instance(game_id, request.user)
             return JsonResponse(game_instance)
@@ -206,7 +210,7 @@ class StartGameView(LoginRequiredMixin, View):
                 'message': str(e)
             }, status=400)
     
-    def http_method_not_allowed(self, request, *args, **kwargs):
+    def http_method_not_allowed(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
         return JsonResponse({
             'status': 'error',
             'message': 'Method not allowed'

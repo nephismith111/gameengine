@@ -31,6 +31,20 @@ channels:
           - $ref: '#/components/messages/ElementsUpdateMessage'
           - $ref: '#/components/messages/GameStateMessage'
           - $ref: '#/components/messages/SettingsUpdateMessage'
+          
+  /waitingroom/{gameId}/:
+    parameters:
+      gameId:
+        description: The unique identifier of the game instance
+        schema:
+          type: string
+          format: uuid
+    subscribe:
+      summary: Receive waiting room updates
+      message:
+        oneOf:
+          - $ref: '#/components/messages/SettingsUpdateMessage'
+          - $ref: '#/components/messages/WaitingRoomUpdateMessage'
 
 components:
   messages:

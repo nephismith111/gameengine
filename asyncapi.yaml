@@ -30,6 +30,7 @@ channels:
         oneOf:
           - $ref: '#/components/messages/ElementsUpdateMessage'
           - $ref: '#/components/messages/GameStateMessage'
+          - $ref: '#/components/messages/SettingsUpdateMessage'
 
 components:
   messages:
@@ -51,6 +52,34 @@ components:
           user_id:
             type: integer
             description: ID of the user receiving the validation message
+          timestamp:
+            type: string
+            format: date-time
+            description: The time when the message was sent
+    
+    SettingsUpdateMessage:
+      name: settingsUpdateMessage
+      title: Settings Update Message
+      summary: Updates for game settings in the waiting room
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          message_type:
+            type: string
+            enum: [settings_update]
+          game_settings:
+            type: object
+            description: The updated game settings
+          updated_by:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: ID of the user who updated the settings
+              username:
+                type: string
+                description: Username of the user who updated the settings
           timestamp:
             type: string
             format: date-time

@@ -19,6 +19,7 @@ This document tracks the features of the Game Engine application to help with de
 - `/gameengine/v1/game-instances/<uuid:game_id>/` - Get details of a specific game instance
 - `/gameengine/v1/game-instances/<uuid:game_id>/join/` - Join a specific game instance
 - `/gameengine/v1/game-instances/<uuid:game_id>/start/` - Start a specific game instance
+- `/gameengine/v1/game-instances/<uuid:game_id>/settings/` - Update settings for a specific game instance
 - `/gameengine/v1/trigger-websocket/` - Trigger a WebSocket message (for testing)
 
 ## WebSocket Functionality
@@ -26,11 +27,12 @@ This document tracks the features of the Game Engine application to help with de
 - Validation messages
 - Elements update messages (for game element updates)
 - Game state messages (for game status and resource updates)
+- Settings update messages (for game settings changes in waiting room)
 
 ## User Interface
 
 - Welcome page with game tiles and game instances table
-- Waiting room with player list and game controls
+- Waiting room with player list, game settings editor, and game controls
 - Game creator controls
 
 ## JavaScript Module Organization

@@ -8,21 +8,48 @@
 <div class="container mt-4">
     <h1 class="mb-4">Waiting Room</h1>
     
-    <div class="card mb-4">
-        <div class="card-header">
-            <h2 id="game-name">Loading game...</h2>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 id="game-name">Loading game...</h2>
+                </div>
+                <div class="card-body">
+                    <h3>Game Type: <span id="game-type">Loading...</span></h3>
+                    <p id="game-description">Loading game description...</p>
+                    
+                    <div id="creator-controls" style="display: none;">
+                        <button id="start-game-btn" class="btn btn-primary">Start Game</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Game Settings</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="settings-editor" class="form-label">Edit Game Settings (JSON format)</label>
+                        <textarea id="settings-editor" class="form-control" rows="10" style="font-family: monospace;"></textarea>
+                        <div id="settings-validation-feedback" class="invalid-feedback" style="display: none;"></div>
+                        <div class="form-text">Only the game creator can edit settings.</div>
+                    </div>
+                    <button id="save-settings-btn" class="btn btn-success">Save Settings</button>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <h3>Game Type: <span id="game-type">Loading...</span></h3>
-            <p id="game-description">Loading game description...</p>
-            
-            <h4 class="mt-4">Players</h4>
-            <ul class="list-group mb-4" id="players-list">
-                <li class="list-group-item">Loading players...</li>
-            </ul>
-            
-            <div id="creator-controls" style="display: none;">
-                <button id="start-game-btn" class="btn btn-primary">Start Game</button>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Players</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group mb-4" id="players-list">
+                        <li class="list-group-item">Loading players...</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -31,6 +58,7 @@
 </div>
 
 <input type="hidden" id="game-id" value="{{ game_id }}">
+<meta name="user-id" content="{{ request.user.id }}">
 
 {% endblock %}
 

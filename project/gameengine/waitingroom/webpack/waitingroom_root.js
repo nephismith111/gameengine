@@ -248,12 +248,7 @@ function leaveGame(gameId) {
  * Show an error message
  */
 function showError(message) {
-    $('.card-body').prepend(
-        `<div class="alert alert-danger alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>`
-    );
+    showNotification(message, 'danger');
 }
 
 /**
@@ -314,35 +309,36 @@ function saveGameSettings(gameId) {
 }
 
 /**
- * Show a success message
+ * Show a success message in the notification area
  */
 function showSuccess(message) {
-    $('.card-body').prepend(
-        `<div class="alert alert-success alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>`
-    );
-    
-    // Auto-dismiss after 3 seconds
-    setTimeout(function() {
-        $('.alert-success').alert('close');
-    }, 3000);
+    showNotification(message, 'success');
 }
 
 /**
- * Show an info message
+ * Show an info message in the notification area
  */
 function showInfo(message) {
-    $('.card-body').prepend(
-        `<div class="alert alert-info alert-dismissible fade show" role="alert">
+    showNotification(message, 'info');
+}
+
+/**
+ * Show a notification in the dedicated notification area
+ */
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = $(`
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>`
-    );
+        </div>
+    `);
     
-    // Auto-dismiss after 3 seconds
+    // Add to notification area
+    $('#notification-area').append(notification);
+    
+    // Auto-dismiss after 5 seconds
     setTimeout(function() {
-        $('.alert-info').alert('close');
-    }, 3000);
+        notification.alert('close');
+    }, 5000);
 }

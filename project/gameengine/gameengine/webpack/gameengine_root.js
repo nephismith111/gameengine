@@ -298,6 +298,11 @@ function showNewGameModal(gameTypeId) {
     const modalElement = document.getElementById('newGameModal');
     const modal = new bootstrap.Modal(modalElement);
     modal.show();
+    
+    // Focus on the instance name input after modal is shown
+    modalElement.addEventListener('shown.bs.modal', function () {
+        $('#instanceName').focus();
+    });
 }
 
 /**
@@ -321,6 +326,14 @@ function setupEventHandlers() {
     // Create game button in modal
     $('#createGameBtn').on('click', function() {
         createNewGame();
+    });
+    
+    // Handle Enter key in the instance name input
+    $('#instanceName').on('keypress', function(e) {
+        if (e.which === 13) { // Enter key
+            e.preventDefault();
+            createNewGame();
+        }
     });
     
     // Refresh game instances periodically

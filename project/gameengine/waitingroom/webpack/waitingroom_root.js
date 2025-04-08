@@ -153,11 +153,11 @@ function updateWaitingRoom(gameData) {
     $('#game-type').text(gameData.game_type.name);
     $('#game-description').text(gameData.game_type.description);
     
-    // Update game image
+    // Update game image in the creator controls area
     if (gameData.game_type.image_url) {
         if ($('#game-image').length === 0) {
             // Add image container if it doesn't exist
-            $('#game-info').append('<div class="text-center mt-3"><img id="game-image" class="img-fluid rounded" style="max-height: 200px;" alt="Game image"></div>');
+            $('#creator-controls').before('<div class="text-center mb-3"><img id="game-image" class="img-fluid rounded" style="max-height: 150px;" alt="Game image"></div>');
         }
         $('#game-image').attr('src', gameData.game_type.image_url);
     }

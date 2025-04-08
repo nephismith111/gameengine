@@ -22,17 +22,8 @@ $(document).ready(function() {
         return;
     }
     
-    // Create notification area if it doesn't exist
-    if ($('#notification-area').length === 0) {
-        // Try to add it after players card
-        if ($('#players-card').length > 0) {
-            $('#players-card').after('<div id="notification-area" class="mt-3"></div>');
-        } 
-        // If players card doesn't exist yet, add it to the main container
-        else {
-            $('.container').append('<div id="notification-area" class="mt-3"></div>');
-        }
-    }
+    // Create toast container immediately on page load
+    ensureNotificationArea();
     
     // Load game data
     loadGameData(gameId);
@@ -385,6 +376,16 @@ function showNotification(message, type = 'info') {
     // Ensure toast container exists
     ensureNotificationArea();
     
+    // Double-check that the container exists
+    if ($('#toast-container').length === 0) {
+        console.error('Toast container still not found after ensureNotificationArea()');
+        // Create it directly as a fallback
+        $('body').append(`
+            <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" 
+                 style="z-index: 1050;"></div>
+        `);
+    }
+    
     // Map type to Bootstrap background class
     const bgClass = type === 'info' ? 'bg-info' : 
                    type === 'success' ? 'bg-success' : 
@@ -410,10 +411,25 @@ function showNotification(message, type = 'info') {
     
     // Add to toast container
     $('#toast-container').append(toast);
+    console.log('Toast appended to container, container exists:', $('#toast-container').length > 0);
     
     // Initialize and show the toast
     try {
         const toastElement = document.getElementById(toastId);
+        if (!toastElement) {
+            console.error('Toast element not found after appending');
+            return;
+        }
+        
+        // Check if Bootstrap is available
+        if (typeof bootstrap === 'undefined' || !bootstrap.Toast) {
+            console.error('Bootstrap Toast API not available');
+            // Use jQuery fallback
+            toast.fadeIn();
+            setTimeout(() => toast.fadeOut(400, function() { $(this).remove(); }), 5000);
+            return;
+        }
+        
         const bsToast = new bootstrap.Toast(toastElement);
         bsToast.show();
     } catch (e) {
@@ -428,12 +444,36 @@ function showNotification(message, type = 'info') {
  * Ensure the notification area exists and is visible
  */
 function ensureNotificationArea() {
+    console.log('Ensuring notification area exists');
+    
+    // Check if toast container already exists
     if ($('#toast-container').length === 0) {
+        console.log('Toast container not found, creating it');
+        
         // Create a toast container at the bottom right of the screen
-        $('body').append(`
+        const toastContainer = $(`
             <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" 
                  style="z-index: 1050;"></div>
         `);
-        console.log('Created toast container');
+        
+        // Append to body
+        $('body').append(toastContainer);
+        
+        // Verify it was created
+        console.log('Toast container created, exists:', $('#toast-container').length > 0);
+        
+        // If it still doesn't exist, try a different approach
+        if ($('#toast-container').length === 0) {
+            console.error('Failed to create toast container with jQuery, trying direct DOM manipulation');
+            const div = document.createElement('div');
+            div.id = 'toast-container';
+            div.className = 'position-fixed bottom-0 end-0 p-3';
+            div.style.zIndex = '1050';
+            document.body.appendChild(div);
+            
+            console.log('Toast container created with DOM API, exists:', document.getElementById('toast-container') !== null);
+        }
+    } else {
+        console.log('Toast container already exists');
     }
 }

@@ -36,3 +36,6 @@ class TriggerWebSocketView(LoginRequiredMixin, View):
             'status': 'error',
             'message': 'Only POST requests are allowed'
         }, status=405)
+
+
+

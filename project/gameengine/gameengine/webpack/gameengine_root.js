@@ -1,6 +1,9 @@
 // Import jQuery
 import $ from 'jquery';
 
+// Import custom CSS
+import '../static/gameengine/css/game_tiles.css';
+
 // API URLs
 const API_URLS = {
     GAME_TYPES: '/gameengine/v1/game-types/',
@@ -167,23 +170,25 @@ function renderGameTypes(gameTypes) {
         return;
     }
 
-    let html = '';
+    let html = '<h2 class="section-title">Available Games <small>(Click a game to create a new instance)</small></h2>';
+    html += '<div class="row row-cols-1 row-cols-md-3 g-4">';
     gameTypes.forEach(function(gameType) {
         html += `
-            <div class="col-md-4 mb-4">
+            <div class="col">
                 <div class="card game-type-card" data-game-type-id="${gameType.id}">
-                    <img src="${gameType.image_url}" class="card-img-top" alt="${gameType.name}" style="height: 180px; object-fit: contain; padding: 15px;">
+                    <img src="${gameType.image_url}" class="card-img-top" alt="${gameType.name}">
                     <div class="card-body">
                         <h5 class="card-title">${gameType.name}</h5>
                         <p class="card-text">${gameType.description}</p>
-                        <p class="card-text"><small class="text-muted">Max Players: ${gameType.max_players}</small></p>
-                        <button class="btn btn-primary create-game-btn">Create Game</button>
+                    </div>
+                    <div class="card-footer">
+                        Max Players: ${gameType.max_players}
                     </div>
                 </div>
             </div>
         `;
     });
-
+    html += '</div>';
     $('#game-types-container').html(html);
 }
 
@@ -282,9 +287,9 @@ function capitalizeFirstLetter(string) {
  */
 function setupEventHandlers() {
     // Event delegation for game type cards
-    $(document).on('click', '.create-game-btn', function(e) {
+    $(document).on('click', '.game-type-card', function(e) {
         e.preventDefault();
-        const gameTypeId = $(this).closest('.game-type-card').data('game-type-id');
+        const gameTypeId = $(this).data('game-type-id');
         showNewGameModal(gameTypeId);
     });
     

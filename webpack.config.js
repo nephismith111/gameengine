@@ -4,6 +4,8 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
   context: __dirname,
+  // Enable source maps for debugging
+  devtool: 'source-map',
   entry: {
     // Add your app entry points here
     // Format: AppName: './project/gameengine/app_name/webpack/app_name_root.js'

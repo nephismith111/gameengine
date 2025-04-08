@@ -294,8 +294,10 @@ function showNewGameModal(gameTypeId) {
     const gameTypeName = $('.game-type-card[data-game-type-id="' + gameTypeId + '"] .card-title').text();
     $('#selectedGameType').text(gameTypeName);
     
-    // Show the modal
-    $('#newGameModal').modal('show');
+    // Show the modal using Bootstrap 5 Modal API
+    const modalElement = document.getElementById('newGameModal');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
 }
 
 /**
@@ -348,7 +350,13 @@ function createNewGame() {
             instance_name: instanceName
         }),
         success: function(response) {
-            $('#newGameModal').modal('hide');
+            // Hide the modal using Bootstrap 5 Modal API
+            const modalElement = document.getElementById('newGameModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            
             // Navigate to the waiting room
             window.location.href = `/waitingroom/${response.id}/`;
         },

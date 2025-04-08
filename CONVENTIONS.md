@@ -146,6 +146,66 @@
     {% render_bundle 'YourBundleName' %}
     ```
 
+## Game Flow and Architecture
+
+### Welcome Page
+- The welcome page displays:
+  - A grid of game tiles (each representing a game type)
+  - A horizontal divider
+  - A table of game instances (pending, ongoing, or ended)
+- Game instance table features:
+  - Sorted by status (pending at top, ongoing next, ended at bottom)
+  - Within each status group, sorted by started_datetime
+  - Columns: Game Type, Instance Name, Status, Players (current/max), Player Names, Actions
+
+### Game Joining Process
+- Users can join existing games if:
+  - The game status is "pending"
+  - Current player count < max_players
+- To create a new game:
+  1. User clicks on a game tile
+  2. User is prompted to enter a game instance name
+  3. System creates a new game instance with:
+     - Status: "pending"
+     - The creating user added to joined_users
+     - Game settings copied from game type defaults
+  4. User is navigated to the waiting room
+
+### Waiting Room
+- Game-specific waiting room shows:
+  - Game instance name
+  - List of joined players
+  - Start game button (visible only to the creator)
+- When the game starts:
+  - Status changes to "ongoing"
+  - started_datetime is set
+  - All players are navigated to the game page
+
+### Game Models
+1. **GameType Model**:
+   - name: Name of the game type (e.g., "TowerDefense")
+   - image_url: URL to the tile image
+   - max_players: Maximum number of players allowed
+   - default_settings: JSONField containing game-specific default settings
+   - description: Text description of the game
+
+2. **GameInstance Model**:
+   - id: UUID primary key
+   - game_type: ForeignKey to GameType
+   - instance_name: User-defined name for this game instance
+   - status: Choice field ("pending", "ongoing", "ended")
+   - started_datetime: When the game started (null if pending)
+   - ended_datetime: When the game ended (null if pending/ongoing)
+   - game_data: JSONField containing:
+     - joined_users: List of dicts with user IDs and usernames
+     - game_settings: Copy of settings from the game type, possibly modified
+
+### Data Flow
+- Game types and their default settings are defined in GAMES.md
+- A migration will create the initial GameType entries (idempotently)
+- Game instances are created when users start new games
+- Game state is managed through the game_data JSONField
+
 # Coding Conventions
 
 ## Technology Stack

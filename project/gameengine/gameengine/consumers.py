@@ -199,6 +199,9 @@ class WaitingRoomConsumer(WebsocketConsumer):
             'updated_by': event['updated_by'],
             'timestamp': event['timestamp']
         }))
+        
+        # Log that we sent the message
+        print(f"WebSocket message sent: settings_update to {self.game_id}")
     
     def waitingroom_update(self, event):
         """
@@ -211,3 +214,6 @@ class WaitingRoomConsumer(WebsocketConsumer):
             'game_data': event['game_data'],
             'timestamp': event['timestamp']
         }))
+        
+        # Log that we sent the message
+        print(f"WebSocket message sent: waitingroom_update to {self.game_id}")

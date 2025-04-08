@@ -82,6 +82,9 @@ function handleSettingsUpdate(data) {
     // Show a notification
     const updatedBy = data.updated_by.username;
     showInfo(`Game settings updated by ${updatedBy}`);
+    
+    // Make sure the notification is visible
+    ensureNotificationArea();
 }
 
 /**
@@ -95,6 +98,9 @@ function handleWaitingRoomUpdate(data) {
     
     // Show a notification
     showInfo('Waiting room updated');
+    
+    // Make sure the notification is visible
+    ensureNotificationArea();
 }
 
 /**
@@ -188,12 +194,20 @@ function updateGameSettings(gameSettings) {
         return;
     }
     
+    console.log('Updating game settings display with:', gameSettings);
+    
     // Format the JSON with indentation for better readability
     const formattedSettings = JSON.stringify(gameSettings, null, 2);
     
     // Update the textarea if it doesn't have focus (to avoid disrupting user editing)
     if (!$('#settings-editor').is(':focus')) {
         $('#settings-editor').val(formattedSettings);
+        
+        // Add a visual indicator that settings were updated
+        $('#settings-card').addClass('border-success');
+        setTimeout(function() {
+            $('#settings-card').removeClass('border-success');
+        }, 2000);
     }
 }
 
@@ -324,6 +338,9 @@ function showNotification(message, type = 'info') {
         </div>
     `);
     
+    // Ensure notification area exists
+    ensureNotificationArea();
+    
     // Add to notification area
     $('#notification-area').append(notification);
     
@@ -331,4 +348,17 @@ function showNotification(message, type = 'info') {
     setTimeout(function() {
         notification.alert('close');
     }, 5000);
+}
+
+/**
+ * Ensure the notification area exists and is visible
+ */
+function ensureNotificationArea() {
+    if ($('#notification-area').length === 0) {
+        // If notification area doesn't exist, create it after the players card
+        $('#players-card').after('<div id="notification-area" class="mt-3"></div>');
+    }
+    
+    // Make sure it's visible
+    $('#notification-area').show();
 }

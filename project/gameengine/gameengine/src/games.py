@@ -200,6 +200,53 @@ def start_game_instance(game_id, user):
     return format_game_instance(instance)
 
 
+def update_game_settings(game_id, user, game_settings):
+    """
+    Update the settings for a game instance.
+    
+    Args:
+        game_id (UUID): The ID of the game instance
+        user (User): The user updating the settings
+        game_settings (dict): The new game settings
+        
+    Returns:
+        GameInstance: The updated game instance
+        
+    Raises:
+        GameError: If the game instance doesn't exist or the user is not the creator
+    """
+    try:
+        instance = GameInstance.objects.get(id=game_id)
+    except GameInstance.DoesNotExist:
+        raise GameError(f"Game instance with ID {game_id} does not exist")
+    
+    # Check if the user is the creator
+    creator_found = False
+    for joined_user in instance.joined_users:
+        if joined_user.get('id') == user.id and joined_user.get('is_creator', False):
+            creator_found = True
+            break
+    
+    if not creator_found:
+        raise GameError("Only the game creator can update settings")
+    
+    # Check if the game is still pending
+    if instance.status != GameInstance.Status.PENDING:
+        raise GameError("Cannot update settings for a game that has already started or ended")
+    
+    # Update the settings
+    game_data = instance.game_data
+    game_data['game_settings'] = game_settings
+    instance.game_data = game_data
+    instance.save()
+    
+    # Send a WebSocket message to all users in the waiting room
+    from project.gameengine.gameengine.src.websocket_messaging import send_settings_update_message
+    send_settings_update_message(game_id, game_settings, user)
+    
+    return instance
+
+
 def format_game_instance(instance):
     """
     Format a GameInstance model into a dictionary for API responses.
@@ -228,5 +275,6 @@ def format_game_instance(instance):
         'ended_datetime': instance.ended_datetime.isoformat() if instance.ended_datetime else None,
         'player_count': instance.player_count,
         'joined_users': instance.joined_users,
-        'is_joinable': instance.is_joinable
+        'is_joinable': instance.is_joinable,
+        'game_settings': instance.game_data.get('game_settings', {})
     }

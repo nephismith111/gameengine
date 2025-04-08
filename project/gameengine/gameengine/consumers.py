@@ -20,23 +20,44 @@ class ValidateConsumer(WebsocketConsumer):
         # Get the user from the scope
         user = self.scope.get("user", None)
         
-        # Add the user to a group based on their username or a random identifier
+        # Get the URL path components
+        path = self.scope['path']
+        
+        # Add the user to appropriate groups
         if user and user.is_authenticated:
-            self.group_name = f"user_{user.id}"
+            # Add to user-specific group
+            self.user_group = f"user_{user.id}"
+            async_to_sync(self.channel_layer.group_add)(
+                self.user_group,
+                self.channel_name
+            )
+            
+            # Check if this is a waiting room connection
+            if 'waitingroom' in path:
+                # Extract game_id from the path
+                import re
+                match = re.search(r'waitingroom/([0-9a-f-]+)', path)
+                if match:
+                    game_id = match.group(1)
+                    # Add to waiting room group
+                    from project.gameengine.gameengine.src.channel_groups import get_waiting_room_group_name
+                    self.waiting_room_group = get_waiting_room_group_name(game_id)
+                    async_to_sync(self.channel_layer.group_add)(
+                        self.waiting_room_group,
+                        self.channel_name
+                    )
         else:
             # Use a unique identifier for anonymous users
             import uuid
-            self.group_name = f"anonymous_{uuid.uuid4().hex}"
-        
-        # Join the group
-        async_to_sync(self.channel_layer.group_add)(
-            self.group_name,
-            self.channel_name
-        )
+            self.user_group = f"anonymous_{uuid.uuid4().hex}"
+            async_to_sync(self.channel_layer.group_add)(
+                self.user_group,
+                self.channel_name
+            )
         
         # Send a connection confirmation message
         self.send(text_data=json.dumps({
-            'type': 'connection_established',
+            'message_type': 'connection_established',
             'message': 'WebSocket connection established'
         }))
     
@@ -44,10 +65,17 @@ class ValidateConsumer(WebsocketConsumer):
         """
         Called when the WebSocket closes for any reason.
         """
-        # Leave the group
-        if hasattr(self, 'group_name'):
+        # Leave the user group
+        if hasattr(self, 'user_group'):
             async_to_sync(self.channel_layer.group_discard)(
-                self.group_name,
+                self.user_group,
+                self.channel_name
+            )
+        
+        # Leave the waiting room group if applicable
+        if hasattr(self, 'waiting_room_group'):
+            async_to_sync(self.channel_layer.group_discard)(
+                self.waiting_room_group,
                 self.channel_name
             )
     
@@ -77,6 +105,20 @@ class ValidateConsumer(WebsocketConsumer):
         """
         # Send the validation message to the WebSocket
         self.send(text_data=json.dumps({
-            'type': 'validation_message',
-            'message': event['message']
+            'message_type': 'validation',
+            'message': event['message'],
+            'user_id': event.get('user_id'),
+            'timestamp': event.get('timestamp')
+        }))
+    
+    def settings_update(self, event):
+        """
+        Handler for settings_update event.
+        """
+        # Send the settings update message to the WebSocket
+        self.send(text_data=json.dumps({
+            'message_type': event['message_type'],
+            'game_settings': event['game_settings'],
+            'updated_by': event['updated_by'],
+            'timestamp': event['timestamp']
         }))

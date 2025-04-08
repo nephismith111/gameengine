@@ -63,6 +63,50 @@ class GameTypesView(LoginRequiredMixin, View):
 
 
 @method_decorator(csrf_exempt, name='dispatch')
+class UpdateGameSettingsView(LoginRequiredMixin, View):
+    """
+    API endpoint to update game settings.
+    """
+    def post(self, request, game_id, *args, **kwargs):
+        try:
+            # Parse the request body
+            data = json.loads(request.body)
+            game_settings = data.get('game_settings')
+            
+            if not game_settings:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'Game settings are required'
+                }, status=400)
+            
+            # Update the game settings
+            from project.gameengine.gameengine.src.games import update_game_settings
+            updated_instance = update_game_settings(game_id, request.user, game_settings)
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Game settings updated successfully',
+                'game_settings': updated_instance.game_data['game_settings']
+            })
+        except json.JSONDecodeError:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Invalid JSON'
+            }, status=400)
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+    
+    def http_method_not_allowed(self, request, *args, **kwargs):
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Method not allowed'
+        }, status=405)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
 class GameInstancesView(LoginRequiredMixin, View):
     """
     API endpoint to get all game instances or create a new one.

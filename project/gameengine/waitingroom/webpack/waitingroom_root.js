@@ -1,5 +1,6 @@
 // Import jQuery
 import $ from 'jquery';
+import WebSocketClient from '../../gameengine/webpack/websocket_client';
 
 // API URLs
 const API_URLS = {
@@ -7,6 +8,9 @@ const API_URLS = {
     START_GAME: (gameId) => `/gameengine/v1/game-instances/${gameId}/start/`,
     UPDATE_SETTINGS: (gameId) => `/gameengine/v1/game-instances/${gameId}/settings/`
 };
+
+// WebSocket client
+let wsClient = null;
 
 // Initialize the waiting room
 $(document).ready(function() {
@@ -34,11 +38,44 @@ $(document).ready(function() {
         validateSettingsJSON();
     });
     
-    // Set up polling to refresh game data
+    // Set up WebSocket connection
+    setupWebSocket(gameId);
+    
+    // Set up polling to refresh game data (as a fallback)
     setInterval(function() {
         loadGameData(gameId);
-    }, 5000); // Refresh every 5 seconds
+    }, 10000); // Refresh every 10 seconds
 });
+
+/**
+ * Set up WebSocket connection for real-time updates
+ */
+function setupWebSocket(gameId) {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${window.location.host}/ws/waitingroom/${gameId}/`;
+    
+    wsClient = new WebSocketClient(wsUrl);
+    
+    // Register message handlers
+    wsClient.on('settings_update', handleSettingsUpdate);
+    
+    // Connect to the WebSocket server
+    wsClient.connect();
+}
+
+/**
+ * Handle settings update messages from WebSocket
+ */
+function handleSettingsUpdate(data) {
+    console.log('Settings update received:', data);
+    
+    // Update the settings display
+    updateGameSettings(data.game_settings);
+    
+    // Show a notification
+    const updatedBy = data.updated_by.username;
+    showInfo(`Game settings updated by ${updatedBy}`);
+}
 
 /**
  * Load game data from the API
@@ -240,5 +277,22 @@ function showSuccess(message) {
     // Auto-dismiss after 3 seconds
     setTimeout(function() {
         $('.alert-success').alert('close');
+    }, 3000);
+}
+
+/**
+ * Show an info message
+ */
+function showInfo(message) {
+    $('.card-body').prepend(
+        `<div class="alert alert-info alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`
+    );
+    
+    // Auto-dismiss after 3 seconds
+    setTimeout(function() {
+        $('.alert-info').alert('close');
     }, 3000);
 }

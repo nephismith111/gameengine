@@ -11,4 +11,5 @@ urlpatterns = [
     path('game-instances/<uuid:game_id>/', v1_views.GameInstanceDetailView.as_view(), name='game_instance_detail'),
     path('game-instances/<uuid:game_id>/join/', v1_views.JoinGameView.as_view(), name='join_game'),
     path('game-instances/<uuid:game_id>/start/', v1_views.StartGameView.as_view(), name='start_game'),
+    path('game-instances/<uuid:game_id>/settings/', v1_views.UpdateGameSettingsView.as_view(), name='update_game_settings'),
 ]

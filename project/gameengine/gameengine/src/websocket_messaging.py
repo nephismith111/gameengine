@@ -148,3 +148,35 @@ def send_elements_update(game_id, elements):
     )
     
     return True
+
+
+def send_waitingroom_update(game_id, game_data):
+    """
+    Send a comprehensive waiting room update to all users in a waiting room.
+    This includes player list, game settings, and other waiting room state.
+    
+    Args:
+        game_id (UUID): The ID of the game instance
+        game_data (dict): Complete game data including joined_users and game_settings
+        
+    Returns:
+        bool: True if the message was sent successfully
+    """
+    # Get the channel layer
+    channel_layer = get_channel_layer()
+    
+    # Get the waiting room group name
+    group_name = get_waiting_room_group_name(game_id)
+    
+    # Send the message to the waiting room group
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            'type': 'waitingroom_update',
+            'message_type': 'waitingroom_update',
+            'game_data': game_data,
+            'timestamp': datetime.now().isoformat()
+        }
+    )
+    
+    return True

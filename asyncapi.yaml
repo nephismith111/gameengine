@@ -84,6 +84,55 @@ components:
             type: string
             format: date-time
             description: The time when the message was sent
+            
+    WaitingRoomUpdateMessage:
+      name: waitingRoomUpdateMessage
+      title: Waiting Room Update Message
+      summary: Comprehensive updates for waiting room state including player list and settings
+      contentType: application/json
+      payload:
+        type: object
+        properties:
+          message_type:
+            type: string
+            enum: [waitingroom_update]
+          game_data:
+            type: object
+            description: Complete game data including players and settings
+            properties:
+              id:
+                type: string
+                format: uuid
+                description: The game instance ID
+              instance_name:
+                type: string
+                description: Name of the game instance
+              status:
+                type: string
+                enum: [pending, ongoing, ended]
+                description: Current status of the game
+              joined_users:
+                type: array
+                description: List of users who have joined the game
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: User ID
+                    username:
+                      type: string
+                      description: Username
+                    is_creator:
+                      type: boolean
+                      description: Whether this user created the game
+              game_settings:
+                type: object
+                description: Current game settings
+          timestamp:
+            type: string
+            format: date-time
+            description: The time when the message was sent
 
 # Django Channels Configuration
 # ----------------------------

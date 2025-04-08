@@ -6,7 +6,8 @@ import WebSocketClient from '../../gameengine/webpack/websocket_client';
 const API_URLS = {
     GAME_INSTANCE: (gameId) => `/gameengine/v1/game-instances/${gameId}/`,
     START_GAME: (gameId) => `/gameengine/v1/game-instances/${gameId}/start/`,
-    UPDATE_SETTINGS: (gameId) => `/gameengine/v1/game-instances/${gameId}/settings/`
+    UPDATE_SETTINGS: (gameId) => `/gameengine/v1/game-instances/${gameId}/settings/`,
+    LEAVE_GAME: (gameId) => `/gameengine/v1/game-instances/${gameId}/leave/`
 };
 
 // WebSocket client
@@ -31,6 +32,11 @@ $(document).ready(function() {
     
     $('#save-settings-btn').on('click', function() {
         saveGameSettings(gameId);
+    });
+    
+    // Add leave game button handler
+    $('#leave-game-btn').on('click', function() {
+        leaveGame(gameId);
     });
     
     // Set up settings validation on blur
@@ -58,9 +64,20 @@ function setupWebSocket(gameId) {
     
     // Register message handlers
     wsClient.on('settings_update', handleSettingsUpdate);
+    wsClient.on('waitingroom_update', handleWaitingRoomUpdate);
     
     // Connect to the WebSocket server
     wsClient.connect();
+    
+    // Set up a ping interval to keep the connection alive
+    setInterval(function() {
+        if (wsClient && wsClient.connected) {
+            wsClient.send({
+                message_type: 'ping',
+                timestamp: new Date().toISOString()
+            });
+        }
+    }, 30000); // Send ping every 30 seconds
 }
 
 /**
@@ -75,6 +92,19 @@ function handleSettingsUpdate(data) {
     // Show a notification
     const updatedBy = data.updated_by.username;
     showInfo(`Game settings updated by ${updatedBy}`);
+}
+
+/**
+ * Handle waiting room update messages from WebSocket
+ */
+function handleWaitingRoomUpdate(data) {
+    console.log('Waiting room update received:', data);
+    
+    // Update the entire waiting room UI with the new data
+    updateWaitingRoom(data.game_data);
+    
+    // Show a notification
+    showInfo('Waiting room updated');
 }
 
 /**
@@ -192,6 +222,26 @@ function startGame(gameId) {
             showError('Failed to start the game. Please try again.');
         }
     });
+}
+
+/**
+ * Leave the waiting room
+ */
+function leaveGame(gameId) {
+    if (confirm('Are you sure you want to leave this game?')) {
+        $.ajax({
+            url: API_URLS.LEAVE_GAME(gameId),
+            type: 'POST',
+            success: function(response) {
+                // Redirect to the home page
+                window.location.href = '/';
+            },
+            error: function(xhr, status, error) {
+                console.error('Failed to leave game:', error);
+                showError('Failed to leave the game. Please try again.');
+            }
+        });
+    }
 }
 
 /**

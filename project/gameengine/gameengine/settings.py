@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'gameengine',
     'userauth',
     'waitingroom',
+    'worker',
 ]
 
 MIDDLEWARE = [

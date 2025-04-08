@@ -11,6 +11,7 @@ This document tracks the features of the Game Engine application to help with de
 - Waiting room functionality
 - Game starting mechanism
 - WebSocket communication for real-time updates
+- Long-running simulation worker for game state management
 
 ## API Endpoints
 
@@ -44,6 +45,33 @@ This document tracks the features of the Game Engine application to help with de
 - `game_instances.js` - Game instance loading and rendering
 - `utils.js` - Utility functions
 
+## Worker Process
+
+The game engine includes a long-running worker process that manages game simulations:
+
+- **Worker App**: Django app that contains the simulation worker code
+- **Simulation Consumer**: Handles simulation commands and updates game state
+- **Management Command**: `run_simulation_worker` starts the worker process
+- **Docker Service**: Dedicated container for running the worker process
+
+### Worker Features
+
+- Maintains in-memory game state for multiple simultaneous games
+- Processes game logic in a continuous loop
+- Sends periodic updates to connected clients via WebSockets
+- Responds to commands from the main application
+- Handles entity creation, updates, and game state changes
+
+### Worker Communication
+
+- **Input Channel**: Listens on the "simulation" channel for commands
+- **Output Channels**: Sends updates to game-specific WebSocket groups
+- **Message Types**:
+  - `start_simulation`: Begins a new simulation for a game
+  - `stop_simulation`: Stops an ongoing simulation
+  - `update_entity`: Updates an entity in the simulation
+  - `update_settings`: Updates simulation settings
+
 ## Testing Status
 
 | Feature | Test Coverage | Notes |
@@ -54,3 +82,4 @@ This document tracks the features of the Game Engine application to help with de
 | Game Instance Joining | Minimal | |
 | Waiting Room | Minimal | |
 | WebSocket Communication | Minimal | Only validation tested |
+| Simulation Worker | None | New feature |

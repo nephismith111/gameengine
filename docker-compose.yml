@@ -17,6 +17,24 @@ services:
       - REDIS_URL=redis://redis:6379/0
     networks:
       - gameengine_network
+      
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 project/gameengine/manage.py run_simulation_worker
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+      - server
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/gameengine
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - gameengine_network
 
   db:
     image: postgres:17

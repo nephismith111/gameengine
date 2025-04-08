@@ -112,6 +112,7 @@
 - Use django unittest with pyvcr. Record interactions in `<app>/tests/fixtures/vcr_cassetts/<file>.yaml`
 - Write a test file in the `<app>/tests` for each major function of the API
 - **Testing Theory**: Tests are a source of truth and prove that the `openapi.yaml` is true. Proving this spec is the goal, not testing every function. I don't care how it works, just that it follows the contract (this allows the inside to be refactored and confidence to be given that the API still behaves correctly for clients).
+- **Feature Tracking**: All features must be documented in `features.md` at the project root. This file helps with designing and maintaining tests by tracking which features have been tested and which haven't.
 
 ## JavaScript Guidelines
 - **Separation of Concerns**: 

@@ -2,7 +2,7 @@
 import $ from 'jquery';
 
 // Import custom CSS
-import '../static/gameengine/css/game_tiles.css';
+import './game_tiles.css';
 
 // API URLs
 const API_URLS = {

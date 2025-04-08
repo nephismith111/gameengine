@@ -59,14 +59,9 @@ $(document).ready(function() {
     // Set up WebSocket connection
     setupWebSocket(gameId);
     
-    // Set up polling to refresh game data (as a fallback)
-    setInterval(function() {
-        loadGameData(gameId);
-    }, 10000); // Refresh every 10 seconds
-    
-    // Show a test notification to verify the notification area works
+    // Show a welcome notification
     setTimeout(function() {
-        showInfo('Waiting room initialized');
+        showInfo('Welcome to the waiting room');
     }, 1000);
 });
 
@@ -77,14 +72,28 @@ function setupWebSocket(gameId) {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/ws/waitingroom/${gameId}/`;
     
+    console.log('Setting up WebSocket connection to:', wsUrl);
+    
     wsClient = new WebSocketClient(wsUrl);
     
     // Register message handlers
     wsClient.on('settings_update', handleSettingsUpdate);
     wsClient.on('waitingroom_update', handleWaitingRoomUpdate);
+    wsClient.on('connection_established', function(data) {
+        console.log('WebSocket connection established:', data);
+        showSuccess('Connected to waiting room');
+    });
     
     // Connect to the WebSocket server
     wsClient.connect();
+    
+    // Add reconnection logic
+    window.addEventListener('online', function() {
+        if (wsClient && !wsClient.connected) {
+            console.log('Network connection restored, reconnecting WebSocket...');
+            wsClient.connect();
+        }
+    });
 }
 
 /**
@@ -98,10 +107,12 @@ function handleSettingsUpdate(data) {
     
     // Show a notification
     const updatedBy = data.updated_by.username;
-    showInfo(`Game settings updated by ${updatedBy}`);
     
-    // Make sure the notification is visible
-    ensureNotificationArea();
+    // Don't show notification to the user who made the change
+    const currentUserId = getCurrentUserId();
+    if (currentUserId !== data.updated_by.id) {
+        showInfo(`Game settings updated by ${updatedBy}`);
+    }
 }
 
 /**
@@ -115,9 +126,6 @@ function handleWaitingRoomUpdate(data) {
     
     // Show a notification
     showInfo('Waiting room updated');
-    
-    // Make sure the notification is visible
-    ensureNotificationArea();
 }
 
 /**
@@ -226,8 +234,12 @@ function updateGameSettings(gameSettings) {
         
         // Add a visual indicator that settings were updated
         $('#settings-card').addClass('border-success');
+        $('#settings-card .card-header').addClass('bg-success text-white');
+        
+        // Flash effect to draw attention
         setTimeout(function() {
             $('#settings-card').removeClass('border-success');
+            $('#settings-card .card-header').removeClass('bg-success text-white');
         }, 2000);
     }
 }
@@ -348,64 +360,63 @@ function showInfo(message) {
 }
 
 /**
- * Show a notification in the dedicated notification area
+ * Show a notification as a Bootstrap toast
  */
 function showNotification(message, type = 'info') {
     console.log('Showing notification:', message, type);
     
-    // Ensure notification area exists
+    // Ensure toast container exists
     ensureNotificationArea();
     
-    // Create notification element
-    const notification = $(`
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    // Map type to Bootstrap background class
+    const bgClass = type === 'info' ? 'bg-info' : 
+                   type === 'success' ? 'bg-success' : 
+                   type === 'warning' ? 'bg-warning' : 
+                   type === 'danger' ? 'bg-danger' : 'bg-secondary';
+    
+    // Create a unique ID for this toast
+    const toastId = 'toast-' + Date.now();
+    
+    // Create toast element
+    const toast = $(`
+        <div id="${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+            <div class="toast-header ${bgClass} text-white">
+                <strong class="me-auto">Game Engine</strong>
+                <small>${new Date().toLocaleTimeString()}</small>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                ${message}
+            </div>
         </div>
     `);
     
-    // Add to notification area
-    $('#notification-area').append(notification);
-    console.log('Added notification to area');
+    // Add to toast container
+    $('#toast-container').append(toast);
     
-    // Auto-dismiss after 5 seconds
-    setTimeout(function() {
-        try {
-            // Use Bootstrap's API to close the alert if Bootstrap is available
-            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
-                const alertElement = notification[0];
-                const bsAlert = new bootstrap.Alert(alertElement);
-                bsAlert.close();
-            } else {
-                // Fallback to jQuery remove if Bootstrap is not available
-                notification.fadeOut(400, function() {
-                    $(this).remove();
-                });
-            }
-        } catch (e) {
-            console.error('Error dismissing alert:', e);
-            // Fallback to jQuery remove
-            notification.fadeOut(400, function() {
-                $(this).remove();
-            });
-        }
-    }, 5000);
+    // Initialize and show the toast
+    try {
+        const toastElement = document.getElementById(toastId);
+        const bsToast = new bootstrap.Toast(toastElement);
+        bsToast.show();
+    } catch (e) {
+        console.error('Error showing toast:', e);
+        // Fallback if Bootstrap Toast API fails
+        toast.fadeIn();
+        setTimeout(() => toast.fadeOut(400, function() { $(this).remove(); }), 5000);
+    }
 }
 
 /**
  * Ensure the notification area exists and is visible
  */
 function ensureNotificationArea() {
-    if ($('#notification-area').length === 0) {
-        // If notification area doesn't exist, create it after the players card
-        $('#players-card').after('<div id="notification-area" class="mt-3"></div>');
-        console.log('Created notification area');
+    if ($('#toast-container').length === 0) {
+        // Create a toast container at the bottom right of the screen
+        $('body').append(`
+            <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" 
+                 style="z-index: 1050;"></div>
+        `);
+        console.log('Created toast container');
     }
-    
-    // Make sure it's visible
-    $('#notification-area').show();
-    
-    // Debug - log all elements with id players-card
-    console.log('Players card elements:', $('#players-card').length);
-    console.log('Notification area elements:', $('#notification-area').length);
 }

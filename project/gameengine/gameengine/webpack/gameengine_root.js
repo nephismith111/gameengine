@@ -283,6 +283,15 @@ function capitalizeFirstLetter(string) {
 }
 
 /**
+ * Show the modal for creating a new game
+ */
+function showNewGameModal(gameTypeId) {
+    $('#gameTypeId').val(gameTypeId);
+    $('#instanceName').val('');
+    $('#newGameModal').modal('show');
+}
+
+/**
  * Set up event handlers for the page
  */
 function setupEventHandlers() {
@@ -309,14 +318,7 @@ function setupEventHandlers() {
     setInterval(loadGameInstances, 10000); // Refresh every 10 seconds
 }
 
-/**
- * Show the modal for creating a new game
- */
-function showNewGameModal(gameTypeId) {
-    $('#gameTypeId').val(gameTypeId);
-    $('#instanceName').val('');
-    $('#newGameModal').modal('show');
-}
+
 
 /**
  * Create a new game instance

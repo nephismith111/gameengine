@@ -68,16 +68,6 @@ function setupWebSocket(gameId) {
     
     // Connect to the WebSocket server
     wsClient.connect();
-    
-    // Set up a ping interval to keep the connection alive
-    setInterval(function() {
-        if (wsClient && wsClient.connected) {
-            wsClient.send({
-                message_type: 'ping',
-                timestamp: new Date().toISOString()
-            });
-        }
-    }, 30000); // Send ping every 30 seconds
 }
 
 /**

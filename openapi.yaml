@@ -1,0 +1,42 @@
+openapi: 3.0.3
+info:
+  title: Game Engine API
+  description: API documentation for the Game Engine project
+  version: 1.0.0
+servers:
+  - url: /
+    description: Local development server
+paths:
+  /gameengine/v1/trigger-websocket/:
+    post:
+      summary: Trigger a WebSocket message
+      description: Sends a validation message to the current user via WebSocket
+      tags:
+        - WebSocket
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: WebSocket message triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: WebSocket message sent
+        '401':
+          description: Unauthorized - User not authenticated
+        '405':
+          description: Method not allowed - Only POST method is supported
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
+      description: Django session authentication

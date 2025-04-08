@@ -1,0 +1,62 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python3 project/gameengine/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DEBUG=1
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/gameengine
+      - REDIS_URL=redis://redis:6379/0
+    networks:
+      - gameengine_network
+
+  db:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=gameengine
+#    ports:
+#      - "5432:5432"
+    networks:
+      - gameengine_network
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - gameengine_network
+
+  webpack:
+    build: .
+    command: npm run dev
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server
+    networks:
+      - gameengine_network
+
+volumes:
+  postgres_data:
+
+networks:
+  gameengine_network:
+    external: false
+    name: gameengine_network
+
+# To create the network manually (if needed):
+# docker network create --attachable gameengine_network

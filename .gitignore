@@ -1,3 +1,14 @@
+.aider*
+.idea/
+.env
+/node_modules/
+__pycache__/
+
+# Environment variables
+.env
+**/web_pack_bundle*
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

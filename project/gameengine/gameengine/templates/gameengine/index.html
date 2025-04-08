@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}Game Engine{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Welcome to Game Engine</h1>
+    <p class="text-muted"><small>(Click the heading to trigger a WebSocket message)</small></p>
+    <div id="game-container">
+        <!-- Game content will be loaded here dynamically -->
+        <p>Loading game...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% render_bundle 'gameengine' %}
+{% endblock %}

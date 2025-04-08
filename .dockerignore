@@ -1,0 +1,8 @@
+.aider*
+.idea/
+.env
+/node_modules/
+__pycache__/
+
+# Environment variables
+.env

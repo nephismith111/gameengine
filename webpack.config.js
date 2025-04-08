@@ -23,7 +23,7 @@ module.exports = {
       filename: 'webpack-stats.json'
     }),
     new MiniCssExtractPlugin({
-      filename: '[name]-[hash].css',
+      filename: 'web_pack_bundle__[name]-[hash].css',
     }),
   ],
   module: {

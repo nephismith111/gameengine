@@ -74,7 +74,7 @@ class GameEngineProcess:
             logger.exception("Error polling for ready games: %s", str(e))
             return []
     
-    def _start_ready_games(self, ready_games):
+    def _start_ready_games(self, ready_games: list):
         """Start game subprocesses for all ready games that aren't already running"""
         try:
             for game in ready_games:

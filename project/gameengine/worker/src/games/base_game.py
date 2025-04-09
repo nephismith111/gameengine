@@ -7,8 +7,8 @@ import time
 from uuid import UUID
 from typing import Dict, Any, Optional
 
-from gameengine.src.games import update_game_status
-from gameengine.src.websocket_messaging import send_game_state_update
+from project.gameengine.gameengine.src.games import update_game_status
+from project.gameengine.gameengine.src.websocket_messaging import send_game_state_update
 
 logger = logging.getLogger(__name__)
 

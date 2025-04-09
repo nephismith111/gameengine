@@ -1,13 +1,15 @@
 import json
 import datetime
+import logging
 from django.utils import timezone
 from django.contrib.auth import get_user_model
 from django.forms.models import model_to_dict
+from django.db import transaction
 from gameengine.models import GameType, GameInstance
 from gameengine.exceptions import GameEngineError
 
 User = get_user_model()
-
+logger = logging.getLogger(__name__)
 
 class GameError(GameEngineError):
     """Base exception for game-related errors."""
@@ -114,6 +116,37 @@ def create_game_instance(game_type_id, instance_name, user):
     )
     
     return format_game_instance(instance)
+
+
+def update_game_status(game_id, status):
+    """
+    Update the status of a game instance.
+    
+    Args:
+        game_id: UUID of the game instance
+        status: New status ('ready', 'starting', 'ongoing', 'ended', 'error')
+    
+    Raises:
+        GameError: If the game instance doesn't exist or status is invalid
+    """
+    try:
+        valid_statuses = ['ready', 'starting', 'ongoing', 'ended', 'error']
+        if status not in valid_statuses:
+            raise GameError(f"Invalid game status: {status}. Must be one of {valid_statuses}")
+        
+        with transaction.atomic():
+            game = GameInstance.objects.select_for_update().get(id=game_id)
+            game.status = status
+            game.save(update_fields=['status'])
+            
+            logger.info(f"Updated game {game_id} status to {status}")
+            
+    except GameInstance.DoesNotExist:
+        logger.error(f"Game {game_id} not found when updating status to {status}")
+        raise GameError(f"Game instance {game_id} not found")
+    except Exception as e:
+        logger.exception(f"Error updating game {game_id} status to {status}: {str(e)}")
+        raise GameError(f"Failed to update game status: {str(e)}")
 
 
 def join_game_instance(game_id, user):
@@ -241,7 +274,7 @@ def update_game_settings(game_id, user, game_settings):
     instance.save()
     
     # Send a WebSocket message to all users in the waiting room
-    from project.gameengine.gameengine.src.websocket_messaging import send_settings_update_message
+    from gameengine.src.websocket_messaging import send_settings_update_message
     send_settings_update_message(game_id, game_settings, user)
     
     return instance

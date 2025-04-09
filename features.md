@@ -57,27 +57,37 @@ This document tracks the features of the Game Engine application to help with de
 The game engine includes a long-running worker process that manages game simulations:
 
 - **Worker App**: Django app that contains the simulation worker code
-- **Simulation Consumer**: Handles simulation commands and updates game state
-- **Management Command**: `run_simulation_worker` starts the worker process
+- **Game Engine Process**: Polls database for ready games and starts game subprocesses
+- **Management Command**: `run_game_engine` starts the worker process
 - **Docker Service**: Dedicated container for running the worker process
 
 ### Worker Features
 
+- Polls database for games in "ready" state
+- Starts appropriate game subprocess based on game type
 - Maintains in-memory game state for multiple simultaneous games
 - Processes game logic in a continuous loop
 - Sends periodic updates to connected clients via WebSockets
-- Responds to commands from the main application
 - Handles entity creation, updates, and game state changes
+
+### Game Process Architecture
+
+- **BaseGameProcess**: Abstract base class for all game types
+- **Game-Specific Implementations**: Each game type has its own implementation
+- **Game States**:
+  - `ready`: Game is ready to start but not yet running
+  - `starting`: Game is in the process of starting
+  - `ongoing`: Game is actively running
+  - `ended`: Game has completed
+  - `error`: Game encountered an error
 
 ### Worker Communication
 
-- **Input Channel**: Listens on the "simulation" channel for commands
+- **Database Polling**: Checks for games in "ready" state at regular intervals
 - **Output Channels**: Sends updates to game-specific WebSocket groups
 - **Message Types**:
-  - `start_simulation`: Begins a new simulation for a game
-  - `stop_simulation`: Stops an ongoing simulation
-  - `update_entity`: Updates an entity in the simulation
-  - `update_settings`: Updates simulation settings
+  - `game_state`: Updates overall game state (status, resources, wave)
+  - `elems_update`: Updates game elements (towers, enemies, etc.)
 
 ## Testing Status
 

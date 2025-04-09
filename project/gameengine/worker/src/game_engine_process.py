@@ -7,12 +7,11 @@ import importlib
 from uuid import UUID
 from typing import Dict, Any, Optional
 
-from django.db import connection
 from django.conf import settings
 
-from project.gameengine.gameengine.project_settings import WORKER_POLL_SECONDS
-from project.gameengine.gameengine.src.games import get_game_instance, update_game_status
-from project.gameengine.gameengine.exceptions import GameEngineError
+from gameengine.project_settings import WORKER_POLL_SECONDS
+from gameengine.src.games import get_game_instance, update_game_status
+from gameengine.exceptions import GameEngineError
 
 logger = logging.getLogger(__name__)
 
@@ -37,10 +36,6 @@ class GameEngineProcess:
         
         try:
             while self.running:
-                # Close and reopen database connection to prevent stale connections
-                connection.close()
-                connection.connect()
-                
                 # Poll for ready games
                 self._poll_for_ready_games()
                 
@@ -197,5 +192,4 @@ class GameEngineProcess:
         # Clear the running games dictionary
         running_games.clear()
         
-        # Close database connection
-        connection.close()
+        # No need to manually close database connections - Django handles this

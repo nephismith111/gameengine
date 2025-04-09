@@ -6,7 +6,7 @@ import signal
 import sys
 from django.core.management.base import BaseCommand
 
-from project.gameengine.worker.src.game_engine_process import GameEngineProcess
+from worker.src.game_engine_process import GameEngineProcess
 
 logger = logging.getLogger(__name__)
 

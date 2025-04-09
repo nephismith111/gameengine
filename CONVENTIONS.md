@@ -208,6 +208,25 @@
   - Internal simulation speed (physics, AI, game logic)
   - Network update frequency (WebSocket messages to clients)
 
+### User Input Handling
+- Games receive user input through the `_process_game_tick(user_inputs)` method
+- User inputs are collected via Redis pubsub (or another message queue)
+- The input format is standardized across games:
+  ```json
+  {
+    "user_id": 123,
+    "input_data": {
+      "keys": ["w", "a", "s", "d"],
+      "key_up": ["space"],
+      "mouse": {"x": 100, "y": 200},
+      "click": {"x": 150, "y": 250, "button": "left"},
+      "game_specific_action": {"action_type": "place_tower", "position": {"x": 300, "y": 400}}
+    }
+  }
+  ```
+- Games should implement a `_process_user_inputs(user_inputs)` method to handle game-specific input processing
+- Input state is maintained between ticks (e.g., keys remain "pressed" until a key_up event)
+
 ### WebSocket Communication
 - Games should use the provided methods to send updates to clients:
   - `_send_game_state_update()`: Send overall game state updates

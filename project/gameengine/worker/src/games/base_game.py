@@ -43,6 +43,10 @@ class BaseGameProcess:
         # Track time for update frequency
         self.last_update_time = 0
         
+        # User input tracking
+        self.user_inputs = {}  # Dictionary to store user inputs by user_id
+        self.input_lock = threading.Lock()  # Lock for thread-safe access to user_inputs
+        
         self.game_state = {
             'status': 'initializing',
             # Game-specific state should be added by subclasses
@@ -106,8 +110,11 @@ class BaseGameProcess:
             while self.running:
                 loop_start_time = time.time()
                 
-                # Process game logic
-                self._process_game_tick()
+                # Get user inputs for this tick
+                user_inputs = self._get_user_inputs()
+                
+                # Process game logic with user inputs
+                self._process_game_tick(user_inputs)
                 
                 # Send updates to clients based on frames_per_second setting
                 current_time = time.time()
@@ -140,9 +147,64 @@ class BaseGameProcess:
         """Initialize the game state - to be implemented by subclasses"""
         raise NotImplementedError("Subclasses must implement _initialize_game")
     
-    def _process_game_tick(self):
-        """Process a single game tick - to be implemented by subclasses"""
+    def _process_game_tick(self, user_inputs: Dict[int, Dict[str, Any]]):
+        """
+        Process a single game tick - to be implemented by subclasses
+        
+        Args:
+            user_inputs: Dictionary of user inputs by user_id
+        """
         raise NotImplementedError("Subclasses must implement _process_game_tick")
+    
+    def _get_user_inputs(self):
+        """
+        Get user inputs for the current game tick.
+        This is a stub that would be replaced with actual Redis pubsub implementation.
+        
+        Returns:
+            dict: Dictionary of user inputs by user_id
+        """
+        try:
+            # This is a stub implementation
+            # In a real implementation, this would fetch inputs from Redis pubsub
+            # or another message queue system
+            
+            # For now, just return the current user_inputs dictionary
+            with self.input_lock:
+                # Return a copy to avoid modification during iteration
+                return self.user_inputs.copy()
+        except Exception as e:
+            logger.error(f"Error getting user inputs for game {self.game_id}: {str(e)}")
+            return {}
+    
+    def process_user_input(self, user_id: int, input_data: Dict[str, Any]):
+        """
+        Process user input received from client.
+        This method would be called when input is received from Redis pubsub.
+        
+        Args:
+            user_id: ID of the user who sent the input
+            input_data: Dictionary containing input data (keys, mouse, etc.)
+        """
+        try:
+            with self.input_lock:
+                # Store the input data for the user
+                if user_id not in self.user_inputs:
+                    self.user_inputs[user_id] = {}
+                
+                # Update the user's input data
+                # This might include key states, mouse position, button clicks, etc.
+                self.user_inputs[user_id].update(input_data)
+                
+                # Handle key up events by removing keys that are no longer pressed
+                if 'key_up' in input_data:
+                    for key in input_data['key_up']:
+                        if 'keys' in self.user_inputs[user_id] and key in self.user_inputs[user_id]['keys']:
+                            self.user_inputs[user_id]['keys'].remove(key)
+                
+                logger.debug(f"Processed input from user {user_id} for game {self.game_id}: {input_data}")
+        except Exception as e:
+            logger.error(f"Error processing user input for game {self.game_id}, user {user_id}: {str(e)}")
     
     def _send_game_state_update(self):
         """

@@ -49,8 +49,16 @@ class GameProcess(BaseGameProcess):
         # Just send initial elements update (empty at start)
         self._send_elements_update()
     
-    def _process_game_tick(self):
-        """Process a single game tick for tower defense"""
+    def _process_game_tick(self, user_inputs: Dict[int, Dict[str, Any]]):
+        """
+        Process a single game tick for tower defense
+        
+        Args:
+            user_inputs: Dictionary of user inputs by user_id
+        """
+        # Process user inputs (e.g., tower placement, upgrades)
+        self._process_user_inputs(user_inputs)
+        
         # Update wave timer based on the game tick rate
         self.wave_timer += self.game_tick_rate
         self.game_state['time_remaining'] = max(0, self.wave_interval - (self.wave_timer % self.wave_interval))
@@ -196,6 +204,98 @@ class GameProcess(BaseGameProcess):
             self.game_state['status'] = 'won'
             logger.info(f"Game {self.game_id} won - all waves completed")
             self.running = False
+    
+    def _process_user_inputs(self, user_inputs: Dict[int, Dict[str, Any]]):
+        """
+        Process user inputs for tower defense
+        
+        Args:
+            user_inputs: Dictionary of user inputs by user_id
+        """
+        for user_id, inputs in user_inputs.items():
+            # Process tower placement
+            if 'place_tower' in inputs:
+                tower_data = inputs['place_tower']
+                self._place_tower(user_id, tower_data)
+            
+            # Process tower upgrades
+            if 'upgrade_tower' in inputs:
+                tower_id = inputs['upgrade_tower']
+                self._upgrade_tower(user_id, tower_id)
+            
+            # Process tower selling
+            if 'sell_tower' in inputs:
+                tower_id = inputs['sell_tower']
+                self._sell_tower(user_id, tower_id)
+    
+    def _place_tower(self, user_id: int, tower_data: Dict[str, Any]):
+        """Place a new tower"""
+        # Check if the user has enough money
+        tower_cost = tower_data.get('cost', 50)
+        if self.game_state['resources']['money'] >= tower_cost:
+            # Create a new tower
+            tower_id = f"tower_{len(self.towers) + 1}"
+            tower = {
+                'id': tower_id,
+                'type': 'tower',
+                'position': tower_data.get('position', {'x': 0, 'y': 0}),
+                'state': 'active',
+                'owner_id': user_id,
+                'properties': {
+                    'damage': tower_data.get('damage', 10),
+                    'range': tower_data.get('range', 100),
+                    'fire_rate': tower_data.get('fire_rate', 1.0),
+                    'level': 1
+                }
+            }
+            
+            # Add the tower to the game
+            self.towers.append(tower)
+            
+            # Deduct the cost from the player's money
+            self.game_state['resources']['money'] -= tower_cost
+            
+            logger.info(f"User {user_id} placed tower {tower_id} in game {self.game_id}")
+    
+    def _upgrade_tower(self, user_id: int, tower_id: str):
+        """Upgrade an existing tower"""
+        # Find the tower
+        for tower in self.towers:
+            if tower['id'] == tower_id and tower['owner_id'] == user_id:
+                # Calculate upgrade cost (increases with level)
+                upgrade_cost = 25 * tower['properties']['level']
+                
+                # Check if the user has enough money
+                if self.game_state['resources']['money'] >= upgrade_cost:
+                    # Upgrade the tower
+                    tower['properties']['level'] += 1
+                    tower['properties']['damage'] *= 1.5  # 50% damage increase
+                    tower['properties']['range'] *= 1.2   # 20% range increase
+                    
+                    # Deduct the cost from the player's money
+                    self.game_state['resources']['money'] -= upgrade_cost
+                    
+                    logger.info(f"User {user_id} upgraded tower {tower_id} to level {tower['properties']['level']} in game {self.game_id}")
+                break
+    
+    def _sell_tower(self, user_id: int, tower_id: str):
+        """Sell an existing tower"""
+        # Find the tower
+        for i, tower in enumerate(self.towers):
+            if tower['id'] == tower_id and tower['owner_id'] == user_id:
+                # Calculate sell value (50% of total investment)
+                base_cost = 50  # Base tower cost
+                upgrade_costs = sum(25 * level for level in range(1, tower['properties']['level']))
+                sell_value = int((base_cost + upgrade_costs) * 0.5)
+                
+                # Remove the tower
+                self.towers.pop(i)
+                
+                # Add the sell value to the player's money
+                self.game_state['resources']['money'] += sell_value
+                
+                logger.info(f"User {user_id} sold tower {tower_id} for {sell_value} in game {self.game_id}")
+                break
     
     def _send_elements_update(self):
         """Send game elements update to clients via WebSocket"""

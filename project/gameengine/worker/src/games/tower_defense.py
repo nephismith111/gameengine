@@ -8,7 +8,7 @@ from uuid import UUID
 from typing import Dict, Any, List
 
 from worker.src.games.base_game import BaseGameProcess
-from gameengine.src.websocket_messaging import send_elements_update
+from gameengine.src.websocket_messaging import send_elements_update, send_game_state_update
 
 logger = logging.getLogger(__name__)
 

@@ -172,6 +172,101 @@
   ```bash
   docker-compose exec web python project/gameengine/manage.py shell
   ```
+- To run the game engine process:
+  ```bash
+  docker-compose exec web python project/gameengine/manage.py run_game_engine
+  ```
+
+## Game Development
+
+### Game Module Structure
+- Each game type must be implemented as a separate module in `worker/src/games/`
+- Game modules must follow these conventions:
+  - Module name should be snake_case (e.g., `tower_defense.py`, `resource_management.py`)
+  - Each module must define a `GameProcess` class that inherits from `BaseGameProcess`
+  - The module should be self-contained with all game-specific logic
+
+### Game Implementation Requirements
+- Each game must implement the following methods:
+  - `_initialize_game()`: Set up initial game state
+  - `_process_game_tick()`: Process a single game tick (called repeatedly in the game loop)
+  - Any additional helper methods needed for game-specific logic
+
+### Game State Management
+- Game state is unique to each game type and should be defined in the game's implementation
+- Common state elements might include:
+  - Resources (lives, money, energy, etc.)
+  - Progress indicators (levels, waves, turns, etc.)
+  - Time-based elements (countdown timers, cooldowns, etc.)
+  - Game elements (units, buildings, enemies, etc.)
+
+### WebSocket Communication
+- Games should use the provided methods to send updates to clients:
+  - `_send_game_state_update()`: Send overall game state updates
+  - Game-specific update methods (e.g., `_send_elements_update()` for tower defense)
+- Message formats must conform to the AsyncAPI specification in `asyncapi.yaml`
+
+### Example Game Implementation
+```python
+class GameProcess(BaseGameProcess):
+    def __init__(self, game_id, game_data):
+        super().__init__(game_id, game_data)
+        # Initialize game-specific variables
+        self.custom_variable = self.game_settings.get('custom_setting', default_value)
+        
+    def _initialize_game(self):
+        """Initialize the game state"""
+        # Set up initial game state
+        self.game_state['resources'] = {
+            'resource1': initial_value,
+            'resource2': initial_value
+        }
+        self.game_state['progress'] = 0
+        
+    def _process_game_tick(self):
+        """Process a single game tick"""
+        # Update game state based on game rules
+        self._update_resources()
+        self._process_game_elements()
+        self._check_game_conditions()
+        
+        # Send updates to clients
+        self._send_custom_updates()
+        
+    def _update_resources(self):
+        """Update game resources"""
+        # Game-specific resource update logic
+        
+    def _process_game_elements(self):
+        """Process game elements"""
+        # Game-specific element processing
+        
+    def _check_game_conditions(self):
+        """Check win/loss conditions"""
+        if win_condition:
+            self.game_state['status'] = 'won'
+            self.running = False
+        elif loss_condition:
+            self.game_state['status'] = 'lost'
+            self.running = False
+            
+    def _send_custom_updates(self):
+        """Send game-specific updates to clients"""
+        # Custom WebSocket message sending
+```
+
+### Game Registration
+- New game types must be registered in two places:
+  1. In the database as a `GameType` record
+  2. In the `_get_game_module` method of `GameEngineProcess` class:
+     ```python
+     game_modules = {
+         1: "tower_defense",
+         2: "resource_management",
+         3: "puzzle_game",
+         # Add new game types here
+     }
+     ```
 
 ## Game Flow and Architecture
 

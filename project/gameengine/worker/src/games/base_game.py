@@ -7,8 +7,8 @@ import time
 from uuid import UUID
 from typing import Dict, Any, Optional
 
-from project.gameengine.gameengine.src.games import update_game_status
-from project.gameengine.gameengine.src.websocket_messaging import send_game_state_update
+from gameengine.src.games import update_game_status
+from gameengine.src.websocket_messaging import send_game_state_update
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +17,14 @@ class BaseGameProcess:
     Abstract base class for all game processes.
     Each specific game type should inherit from this class and implement
     the required methods.
+    
+    Game implementations must override:
+    - _initialize_game(): Set up initial game state
+    - _process_game_tick(): Process a single game tick
+    
+    Game state is unique to each game type and should be defined in the
+    game's implementation. The base class provides a minimal structure
+    that can be extended as needed.
     """
     
     def __init__(self, game_id: UUID, game_data: Dict[str, Any]):
@@ -28,9 +36,7 @@ class BaseGameProcess:
         self.thread = None
         self.game_state = {
             'status': 'initializing',
-            'resources': {},
-            'wave': 0,
-            'time_remaining': None
+            # Game-specific state should be added by subclasses
         }
         logger.info(f"Initialized BaseGameProcess for game {self.game_id}")
     
@@ -115,14 +121,26 @@ class BaseGameProcess:
         raise NotImplementedError("Subclasses must implement _process_game_tick")
     
     def _send_game_state_update(self):
-        """Send game state update to clients via WebSocket"""
+        """
+        Send game state update to clients via WebSocket.
+        
+        This is a basic implementation that sends the minimal required fields.
+        Game implementations should override this method if they need to send
+        additional or different state information.
+        """
         try:
+            # Extract common fields with safe defaults
+            status = self.game_state.get('status', 'active')
+            resources = self.game_state.get('resources', {})
+            progress = self.game_state.get('progress', 0)  # Generic progress indicator
+            time_remaining = self.game_state.get('time_remaining')
+            
             send_game_state_update(
                 self.game_id,
-                self.game_state['status'],
-                self.game_state['resources'],
-                self.game_state['wave'],
-                self.game_state.get('time_remaining')
+                status,
+                resources,
+                progress,
+                time_remaining
             )
         except Exception as e:
             logger.error(f"Error sending game state update for {self.game_id}: {str(e)}")

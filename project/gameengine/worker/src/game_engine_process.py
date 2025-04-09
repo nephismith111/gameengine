@@ -9,10 +9,10 @@ from typing import Dict, Any, Optional
 
 from django.conf import settings
 
-from project.gameengine.gameengine.project_settings import WORKER_POLL_SECONDS
-from project.gameengine.gameengine.src.games import update_game_status
-from project.gameengine.gameengine.exceptions import GameEngineError
-from project.gameengine.gameengine.models import GameInstance
+from gameengine.project_settings import WORKER_POLL_SECONDS
+from gameengine.src.games import update_game_status
+from gameengine.exceptions import GameEngineError
+from gameengine.models import GameInstance
 logger = logging.getLogger(__name__)
 
 # Dictionary to track running game processes

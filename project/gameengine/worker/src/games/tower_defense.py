@@ -20,27 +20,33 @@ class GameProcess(BaseGameProcess):
     
     def __init__(self, game_id: UUID, game_data: Dict[str, Any]):
         super().__init__(game_id, game_data)
+        # Tower defense specific variables
         self.towers = []
         self.enemies = []
         self.wave_timer = 0
         self.wave_interval = self.game_settings.get('wave_interval', 30)  # seconds between waves
         self.max_waves = self.game_settings.get('max_waves', 10)
+        
+        # Extend the base game state with tower defense specific state
+        self.game_state.update({
+            'resources': {
+                'lives': self.game_settings.get('starting_lives', 20),
+                'money': self.game_settings.get('starting_money', 100),
+                'score': 0
+            },
+            'wave': 0,  # Current wave number
+            'time_remaining': self.wave_interval,
+            'progress': 0  # Will be calculated as current_wave / max_waves
+        })
+        
         logger.info(f"Initialized Tower Defense game {self.game_id}")
     
     def _initialize_game(self):
         """Initialize the tower defense game state"""
         logger.info(f"Initializing Tower Defense game {self.game_id}")
         
-        # Set up initial game state
-        self.game_state['resources'] = {
-            'lives': self.game_settings.get('starting_lives', 20),
-            'money': self.game_settings.get('starting_money', 100),
-            'score': 0
-        }
-        self.game_state['wave'] = 0
-        self.game_state['time_remaining'] = self.wave_interval
-        
-        # Send initial elements update (empty at start)
+        # Game state is already initialized in __init__
+        # Just send initial elements update (empty at start)
         self._send_elements_update()
     
     def _process_game_tick(self):
@@ -59,6 +65,10 @@ class GameProcess(BaseGameProcess):
         
         # Process tower attacks
         self._process_tower_attacks()
+        
+        # Update progress indicator (for UI progress bars, etc.)
+        if self.max_waves > 0:
+            self.game_state['progress'] = min(100, int((self.game_state['wave'] / self.max_waves) * 100))
         
         # Check game end conditions
         self._check_game_end_conditions()
@@ -193,3 +203,19 @@ class GameProcess(BaseGameProcess):
             send_elements_update(self.game_id, elements)
         except Exception as e:
             logger.error(f"Error sending elements update for {self.game_id}: {str(e)}")
+    
+    def _send_game_state_update(self):
+        """
+        Override the base method to send tower defense specific state updates
+        that include wave information instead of generic progress.
+        """
+        try:
+            send_game_state_update(
+                self.game_id,
+                self.game_state['status'],
+                self.game_state['resources'],
+                self.game_state['wave'],  # Send wave instead of generic progress
+                self.game_state.get('time_remaining')
+            )
+        except Exception as e:
+            logger.error(f"Error sending game state update for {self.game_id}: {str(e)}")

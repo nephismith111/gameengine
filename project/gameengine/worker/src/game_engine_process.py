@@ -37,7 +37,10 @@ class GameEngineProcess:
         try:
             while self.running:
                 # Poll for ready games
-                self._poll_for_ready_games()
+                ready_games = self._poll_for_ready_games()
+                
+                # Start ready games
+                self._start_ready_games(ready_games)
                 
                 # Check status of running games
                 self._check_running_games()
@@ -58,15 +61,18 @@ class GameEngineProcess:
         self._cleanup()
     
     def _poll_for_ready_games(self):
-        """Poll the database for games in READY state and start them"""
+        """Poll the database for games in READY state
+        
+        Returns:
+            list: List of ready games
+        """
         try:
             # Query for games in READY state
             ready_games = self._get_ready_games()
-            
-            # Start the ready games
-            self._start_ready_games(ready_games)
+            return ready_games
         except Exception as e:
             logger.exception("Error polling for ready games: %s", str(e))
+            return []
     
     def _start_ready_games(self, ready_games):
         """Start game subprocesses for all ready games that aren't already running"""

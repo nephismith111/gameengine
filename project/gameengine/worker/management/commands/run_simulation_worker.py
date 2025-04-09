@@ -5,7 +5,7 @@ import asyncio
 from channels.worker import Worker
 from channels.routing import ProtocolTypeRouter, ChannelNameRouter
 from channels.layers import get_channel_layer
-from worker.src.simulation import SimulationConsumer
+from project.gameengine.worker.src.simulation import SimulationConsumer
 
 
 class Command(BaseCommand):

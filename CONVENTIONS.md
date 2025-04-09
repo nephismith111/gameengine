@@ -200,6 +200,14 @@
   - Time-based elements (countdown timers, cooldowns, etc.)
   - Game elements (units, buildings, enemies, etc.)
 
+### Game Performance Settings
+- Each game should respect these standard settings in game_settings:
+  - `game_tick_rate`: How often the game state is updated (in seconds, default: 0.1)
+  - `frames_per_second`: How often updates are sent to clients (default: 10)
+- These settings control:
+  - Internal simulation speed (physics, AI, game logic)
+  - Network update frequency (WebSocket messages to clients)
+
 ### WebSocket Communication
 - Games should use the provided methods to send updates to clients:
   - `_send_game_state_update()`: Send overall game state updates

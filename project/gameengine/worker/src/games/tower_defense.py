@@ -39,7 +39,7 @@ class GameProcess(BaseGameProcess):
             'progress': 0  # Will be calculated as current_wave / max_waves
         })
         
-        logger.info(f"Initialized Tower Defense game {self.game_id}")
+        logger.info(f"Initialized Tower Defense game {self.game_id} with wave interval: {self.wave_interval}s")
     
     def _initialize_game(self):
         """Initialize the tower defense game state"""
@@ -51,8 +51,8 @@ class GameProcess(BaseGameProcess):
     
     def _process_game_tick(self):
         """Process a single game tick for tower defense"""
-        # Update wave timer
-        self.wave_timer += 0.1  # 100ms per tick
+        # Update wave timer based on the game tick rate
+        self.wave_timer += self.game_tick_rate
         self.game_state['time_remaining'] = max(0, self.wave_interval - (self.wave_timer % self.wave_interval))
         
         # Check if it's time for a new wave
@@ -73,8 +73,12 @@ class GameProcess(BaseGameProcess):
         # Check game end conditions
         self._check_game_end_conditions()
         
-        # Send elements update every few ticks (not every tick to reduce network traffic)
-        if random.random() < 0.2:  # ~20% chance per tick, so ~2 updates per second
+        # Send elements update based on frames_per_second
+        # This is now handled by the base class's update interval logic
+        current_time = time.time()
+        time_since_last_update = current_time - self.last_update_time
+        
+        if time_since_last_update >= self.update_interval:
             self._send_elements_update()
     
     def _start_new_wave(self):

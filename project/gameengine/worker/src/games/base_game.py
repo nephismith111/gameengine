@@ -34,11 +34,21 @@ class BaseGameProcess:
         self.instance_name = game_data.get('instance_name', 'Unknown Game')
         self.running = False
         self.thread = None
+        
+        # Configure game tick rate and update frequency
+        self.game_tick_rate = self.game_settings.get('game_tick_rate', 0.1)  # Default: 10 ticks per second
+        self.frames_per_second = self.game_settings.get('frames_per_second', 10)  # Default: 10 FPS
+        self.update_interval = 1.0 / self.frames_per_second if self.frames_per_second > 0 else 0.1
+        
+        # Track time for update frequency
+        self.last_update_time = 0
+        
         self.game_state = {
             'status': 'initializing',
             # Game-specific state should be added by subclasses
         }
-        logger.info(f"Initialized BaseGameProcess for game {self.game_id}")
+        
+        logger.info(f"Initialized BaseGameProcess for game {self.game_id} with tick rate: {self.game_tick_rate}s, update interval: {self.update_interval}s")
     
     def start(self):
         """Start the game process in a separate thread"""
@@ -89,16 +99,30 @@ class BaseGameProcess:
             self.game_state['status'] = 'active'
             self._send_game_state_update()
             
+            # Track time for update frequency
+            self.last_update_time = time.time()
+            
             # Run the game loop until stopped
             while self.running:
+                loop_start_time = time.time()
+                
                 # Process game logic
                 self._process_game_tick()
                 
-                # Send updates to clients
-                self._send_game_state_update()
+                # Send updates to clients based on frames_per_second setting
+                current_time = time.time()
+                time_since_last_update = current_time - self.last_update_time
                 
-                # Sleep for a short time
-                time.sleep(0.1)  # 100ms tick rate
+                if time_since_last_update >= self.update_interval:
+                    self._send_game_state_update()
+                    self.last_update_time = current_time
+                
+                # Calculate how long to sleep to maintain the desired tick rate
+                processing_time = time.time() - loop_start_time
+                sleep_time = max(0, self.game_tick_rate - processing_time)
+                
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
                 
         except Exception as e:
             logger.exception(f"Error in game loop for {self.game_id}: {str(e)}")

@@ -61,12 +61,16 @@ class GameEngineProcess:
         """Poll the database for games in READY state and start them"""
         try:
             # Query for games in READY state
-            # This would typically use Django ORM, but we're keeping it abstract here
-            # In a real implementation, you would query your GameInstance model
-            
-            # Placeholder for actual database query
             ready_games = self._get_ready_games()
             
+            # Start the ready games
+            self._start_ready_games(ready_games)
+        except Exception as e:
+            logger.exception("Error polling for ready games: %s", str(e))
+    
+    def _start_ready_games(self, ready_games):
+        """Start game subprocesses for all ready games that aren't already running"""
+        try:
             for game in ready_games:
                 game_id = game['id']
                 game_type = game['game_type']['id']
@@ -75,7 +79,7 @@ class GameEngineProcess:
                 if str(game_id) not in running_games:
                     self._start_game_subprocess(game_id, game_type, game)
         except Exception as e:
-            logger.exception("Error polling for ready games: %s", str(e))
+            logger.exception("Error starting ready games: %s", str(e))
     
     def _get_ready_games(self) -> list:
         """
